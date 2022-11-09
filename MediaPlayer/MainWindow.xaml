@@ -6,6 +6,9 @@
         xmlns:local="clr-namespace:MediaPlayer"
         mc:Ignorable="d"
         Title="MediaPlayer" Height="450" Width="900">
+    <Window.Resources>
+        <ResourceDictionary Source="CustomSliderAndButtonDictionary.xaml"/>
+    </Window.Resources>
     <DockPanel>
         <StackPanel DockPanel.Dock="Top">
             <Menu Background="#555" Foreground="White" Cursor="Hand" FontSize="15">
@@ -29,20 +32,20 @@
         </StackPanel>
 
         <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Background="#333">
-            <Button Name="BtnPrevious" Click="BtnSeeking_Click" Background="#333" BorderBrush="Transparent">
+            <Button Name="BtnPrevious" Click="BtnSeeking_Click">
                 <Image Source="Images/Previous.png" Height="23"/>
             </Button>
-            <Button Padding="5" Focusable="False" Background="#333" BorderBrush="Transparent">
+            <Button Padding="5" Focusable="False">
                 <Image Source="Images/play-button-arrowhead.png" Height="11"/>
             </Button>
-            <Button Padding="5" Focusable="False" Background="#333" BorderBrush="Transparent">
+            <Button Padding="5" Focusable="False">
                 <Image Source="Images/pause.png" Height="11"/>
             </Button>
             
-            <Button Padding="5" Focusable="False" Background="#333" BorderBrush="Transparent">
+            <Button Padding="5" Focusable="False">
                 <Image Source="Images/stop.png" Height="11"/>
             </Button>
-            <Button Name="BtnNext" Click="BtnSeeking_Click" Background="#333" BorderBrush="Transparent">
+            <Button Name="BtnNext" Click="BtnSeeking_Click">
                 <Image Source="Images/Next.png" Height="23"/>
             </Button>
         </StackPanel>
@@ -78,7 +81,7 @@
             </StatusBarItem>
 
             <StatusBarItem Grid.Column="2">
-                <Button x:Name="MuteButton" Background="#555" BorderBrush="Transparent">
+                <Button x:Name="MuteButton">
                     <Image Source="Images/volume.png" Height="17" Width="26"/>
                 </Button>
             </StatusBarItem>
