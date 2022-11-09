@@ -7,4 +7,26 @@
     <UseWPF>true</UseWPF>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="Images\maximize-size-option.png" />
+    <None Remove="Images\mute-volume-control.png" />
+    <None Remove="Images\Next.png" />
+    <None Remove="Images\pause.png" />
+    <None Remove="Images\play-button-arrowhead.png" />
+    <None Remove="Images\Previous.png" />
+    <None Remove="Images\stop.png" />
+    <None Remove="Images\volume.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Images\maximize-size-option.png" />
+    <Resource Include="Images\mute-volume-control.png" />
+    <Resource Include="Images\Next.png" />
+    <Resource Include="Images\pause.png" />
+    <Resource Include="Images\play-button-arrowhead.png" />
+    <Resource Include="Images\Previous.png" />
+    <Resource Include="Images\stop.png" />
+    <Resource Include="Images\volume.png" />
+  </ItemGroup>
+
 </Project>

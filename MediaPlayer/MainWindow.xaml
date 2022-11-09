@@ -5,8 +5,102 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MediaPlayer"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        Title="MediaPlayer" Height="450" Width="900">
+    <DockPanel>
+        <StackPanel DockPanel.Dock="Top">
+            <Menu Background="#555" Foreground="White" Cursor="Hand" FontSize="15">
+                <MenuItem Header="File">
+                    <MenuItem Header="Open File" Foreground="Black">
 
-    </Grid>
+                    </MenuItem>
+                    <MenuItem Header="Open Folder" Foreground="Black">
+
+                    </MenuItem>
+                </MenuItem>
+                <MenuItem Header="View">
+                    <MenuItem Header="View Playlist" Foreground="Black">
+
+                    </MenuItem>
+                    <MenuItem Header="Add to Playlist" Foreground="Black">
+
+                    </MenuItem>
+                </MenuItem>
+            </Menu>
+        </StackPanel>
+
+        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Background="#333">
+            <Button Name="BtnPrevious" Click="BtnSeeking_Click" Background="#333" BorderBrush="Transparent">
+                <Image Source="Images/Previous.png" Height="23"/>
+            </Button>
+            <Button Padding="5" Focusable="False" Background="#333" BorderBrush="Transparent">
+                <Image Source="Images/play-button-arrowhead.png" Height="11"/>
+            </Button>
+            <Button Padding="5" Focusable="False" Background="#333" BorderBrush="Transparent">
+                <Image Source="Images/pause.png" Height="11"/>
+            </Button>
+            
+            <Button Padding="5" Focusable="False" Background="#333" BorderBrush="Transparent">
+                <Image Source="Images/stop.png" Height="11"/>
+            </Button>
+            <Button Name="BtnNext" Click="BtnSeeking_Click" Background="#333" BorderBrush="Transparent">
+                <Image Source="Images/Next.png" Height="23"/>
+            </Button>
+        </StackPanel>
+
+        <StatusBar Background="#555" DockPanel.Dock="Bottom">
+            <StatusBar.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                    </Grid>
+                </ItemsPanelTemplate>
+            </StatusBar.ItemsPanel>
+            <WrapPanel>
+                <TextBlock Text="00:00:00" FontSize="16" 
+                       Foreground="White" x:Name="txtTime"/>
+
+                <TextBlock Text="/" FontSize="16" 
+                           Foreground="White"/>
+
+                <TextBlock Text="00:00:00" FontSize="16" 
+                       Foreground="#888" x:Name="txtFullTime"/>
+            </WrapPanel>
+
+            <StatusBarItem Grid.Column="1" HorizontalContentAlignment="Stretch">
+                <Slider x:Name="sliDuration" Thumb.DragCompleted="SliDuration_DragCompleted"
+                            IsMoveToPointEnabled="True"/>
+            </StatusBarItem>
+
+            <StatusBarItem Grid.Column="2">
+                <Button x:Name="MuteButton" Background="#555" BorderBrush="Transparent">
+                    <Image Source="Images/volume.png" Height="17" Width="26"/>
+                </Button>
+            </StatusBarItem>
+
+            <StatusBarItem Grid.Column="3" HorizontalContentAlignment="Stretch" Width="80">
+
+                <Slider x:Name="sliVolume"
+                            Maximum="1" IsMoveToPointEnabled="True"/>
+
+            </StatusBarItem>
+            <StatusBarItem Grid.Column="4">
+                <WrapPanel>
+                    <TextBlock Text="0%" FontSize="16" 
+                       Foreground="White" x:Name="txtVolume"/>
+                </WrapPanel>
+            </StatusBarItem>
+        </StatusBar>
+
+        <StackPanel Background="#333">
+            <MediaElement>
+
+            </MediaElement>
+        </StackPanel>
+    </DockPanel>
 </Window>

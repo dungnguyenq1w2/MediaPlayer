@@ -24,5 +24,15 @@ namespace MediaPlayer
         {
             InitializeComponent();
         }
+
+        private void SliDuration_DragCompleted(object sender, System.Windows.Controls.Primitives.DragCompletedEventArgs e)
+        {
+
+        }
+
+        private void BtnSeeking_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }
