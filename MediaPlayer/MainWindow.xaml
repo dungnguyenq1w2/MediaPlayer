@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MediaPlayer"
         mc:Ignorable="d"
-        Title="MediaPlayer" Height="450" Width="900">
+        Title="MediaPlayer" Height="450" Width="900" Loaded="Window_Loaded">
     <Window.Resources>
         <ResourceDictionary Source="CustomSliderAndButtonDictionary.xaml"/>
     </Window.Resources>
@@ -21,7 +21,7 @@
                     </MenuItem>
                 </MenuItem>
                 <MenuItem Header="View">
-                    <MenuItem Header="View Playlist" Foreground="Black">
+                    <MenuItem Header="View Playlist" Foreground="Black" Click="ViewPlaylist_Click">
 
                     </MenuItem>
                     <MenuItem Header="Add to Playlist" Foreground="Black">
@@ -32,7 +32,7 @@
         </StackPanel>
 
         <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Background="#333">
-            <Button Name="BtnPrevious" Click="BtnSeeking_Click">
+            <Button Name="BtnPrevious" Click="BtnPrevious_Click">
                 <Image Source="Images/Previous.png" Height="23"/>
             </Button>
             <Button Padding="5" Focusable="False">
@@ -41,11 +41,11 @@
             <Button Padding="5" Focusable="False">
                 <Image Source="Images/pause.png" Height="11"/>
             </Button>
-            
+
             <Button Padding="5" Focusable="False">
                 <Image Source="Images/stop.png" Height="11"/>
             </Button>
-            <Button Name="BtnNext" Click="BtnSeeking_Click">
+            <Button Name="BtnNext" Click="BtnNext_Click">
                 <Image Source="Images/Next.png" Height="23"/>
             </Button>
         </StackPanel>
@@ -100,10 +100,52 @@
             </StatusBarItem>
         </StatusBar>
 
-        <StackPanel Background="#333">
-            <MediaElement>
+        <Grid x:Name="mediaGrid" Background="#333" >
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="385*" />
+                <ColumnDefinition Width="184*"/>
+            </Grid.ColumnDefinitions>
 
-            </MediaElement>
-        </StackPanel>
+            <Grid.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="View Playlist" Click="ViewPlaylist_Click"/>
+                </ContextMenu>
+            </Grid.ContextMenu>
+
+            <StackPanel Grid.Column="0" Visibility="Hidden" Background="Transparent">
+                <MediaElement>
+
+                </MediaElement>
+            </StackPanel>
+            <GridSplitter Width="2" Background="#444">
+
+            </GridSplitter>
+            <DockPanel Grid.Column="1">
+                <TextBox x:Name="keywordTextBox" Text="{Binding Keyword, UpdateSourceTrigger=PropertyChanged}" TextChanged="keywordTextBox_TextChanged" DockPanel.Dock="Top">
+                </TextBox>
+                <ListView Background="Transparent" Name="playListView" BorderThickness="0">
+                    <ListView.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel />
+                        </ItemsPanelTemplate>
+                    </ListView.ItemsPanel>
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <Image Width="10" Height="10" Source="Images/play-button-arrowhead.png" Margin="5"/>
+                                <TextBlock Margin="5">
+                                <Run Text="{Binding Name}" Foreground="White"/>
+                                </TextBlock>
+                                <TextBlock Margin="5">
+                                <Run Text="{Binding totalTime}" Foreground="White"/>
+                                <Run Text="/" Foreground="White"/>
+                                <Run Text="{Binding currentPlayedTime}" Foreground="Gray"/>
+                                </TextBlock>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </DockPanel>
+        </Grid>
     </DockPanel>
 </Window>
