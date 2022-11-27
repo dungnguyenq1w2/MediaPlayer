@@ -31,22 +31,35 @@ namespace MediaPlayer
             InitializeComponent();
         }
 
-        ObservableCollection<MediaFile> _mediaFiles = new ObservableCollection<MediaFile>();
+        ObservableCollection<MediaFile> _mediaFilesInPlaylist = new ObservableCollection<MediaFile>();
+
+        ObservableCollection<MediaFile> _recentlyPlayedFiles = new ObservableCollection<MediaFile>();
+
+        public string DisplayName { get; set; }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             string filename = "playlist.txt";
+            string recentPlayed = "recentPlayedFiles.txt";
+            
             string[] lines = File.ReadAllLines(filename);
-
+            string[] lines2 = File.ReadAllLines(recentPlayed);
+            
             for(int i = 0; i < lines.Length; i++)
             {
                 string[] tokens = lines[i].Split(new string[] { " " }, StringSplitOptions.None);
 
-                _mediaFiles.Add(new MediaFile(tokens[0], tokens[1], tokens[2]));
+                _mediaFilesInPlaylist.Add(new MediaFile(tokens[0], tokens[1], tokens[2]));
+            }
+
+            for (int i = 0; i < lines2.Length; i++)
+            {
+                string[] tokens = lines2[i].Split(new string[] { " " }, StringSplitOptions.None);
+
+                _recentlyPlayedFiles.Add(new MediaFile(tokens[0], tokens[1], tokens[2]));
             }
 
             DataContext = this;
-            playListView.ItemsSource = _mediaFiles;
         }
 
         private void SliDuration_DragCompleted(object sender, System.Windows.Controls.Primitives.DragCompletedEventArgs e)
@@ -59,6 +72,8 @@ namespace MediaPlayer
             if (mediaGrid.ColumnDefinitions[1].Width == new GridLength(0))
             {
                 mediaGrid.ColumnDefinitions[1].Width = new GridLength(184, GridUnitType.Star);
+                playListView.ItemsSource = _mediaFilesInPlaylist;
+                DisplayName = "Current playlist";
             }
             else
             {
@@ -81,13 +96,44 @@ namespace MediaPlayer
         {
             if (Keyword == "")
             {
-                playListView.ItemsSource = _mediaFiles;
+                if (DisplayName == "Current playlist")
+                    playListView.ItemsSource = _mediaFilesInPlaylist;
+                else
+                    playListView.ItemsSource = _recentlyPlayedFiles;
             }
             else
             {
-                var mediaFiles = new ObservableCollection<MediaFile>(_mediaFiles.Where(
-                                    mediaFile => mediaFile.Name.ToLower().Contains(Keyword.ToLower())).ToList());
-                playListView.ItemsSource = mediaFiles;
+                if (DisplayName == "Current playlist")
+                {
+                    var mediaFiles = new ObservableCollection<MediaFile>(_mediaFilesInPlaylist.Where(
+                                                    mediaFile => mediaFile.Name.ToLower().Contains(Keyword.ToLower())).ToList());
+
+                    playListView.ItemsSource = mediaFiles;
+                }
+                else
+                {
+                    var mediaFiles = new ObservableCollection<MediaFile>(_recentlyPlayedFiles.Where(
+                                                    mediaFile => mediaFile.Name.ToLower().Contains(Keyword.ToLower())).ToList());
+
+                    playListView.ItemsSource = mediaFiles;
+                }
+
+
+            }
+        }
+
+        private void ViewRecentPlayedFiles_Click(object sender, RoutedEventArgs e)
+        {
+
+            if (mediaGrid.ColumnDefinitions[1].Width == new GridLength(0))
+            {
+                mediaGrid.ColumnDefinitions[1].Width = new GridLength(184, GridUnitType.Star);
+                playListView.ItemsSource = _recentlyPlayedFiles;
+                DisplayName = "Recent played files";
+            }
+            else
+            {
+                mediaGrid.ColumnDefinitions[1].Width = new GridLength(0);
             }
         }
     }

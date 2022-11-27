@@ -12,6 +12,18 @@
     <DockPanel>
         <StackPanel DockPanel.Dock="Top">
             <Menu Background="#555" Foreground="White" Cursor="Hand" FontSize="15">
+                <MenuItem Header="File">
+                    <MenuItem Header="Open File" Foreground="Black" Click="ViewRecentPlayedFiles_Click">
+                        <MenuItem.Icon>
+                            <Image Source="/Images/document.png"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="View recently played" Foreground="Black" Click="ViewRecentPlayedFiles_Click">
+                        <MenuItem.Icon>
+                            <Image Source="/Images/view-playlist.png"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                </MenuItem>
                 <MenuItem Header="Playlist">
                     <MenuItem Header="View Playlist" Foreground="Black" Click="ViewPlaylist_Click">
                         <MenuItem.Icon>
@@ -109,7 +121,7 @@
         <Grid x:Name="mediaGrid" Background="#333" >
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="385*" />
-                <ColumnDefinition Width="184*"/>
+                <ColumnDefinition Width="0"/>
             </Grid.ColumnDefinitions>
 
             <StackPanel Grid.Column="0" Visibility="Hidden" Background="Transparent">
@@ -123,6 +135,9 @@
             <DockPanel Grid.Column="1">
                 <TextBox x:Name="keywordTextBox" Text="{Binding Keyword, UpdateSourceTrigger=PropertyChanged}" TextChanged="keywordTextBox_TextChanged" DockPanel.Dock="Top">
                 </TextBox>
+                <TextBlock DockPanel.Dock="Top" HorizontalAlignment="Center">
+                        <Run Text="{Binding DisplayName}" Foreground="White" FontSize="20"/>
+                </TextBlock>
                 <ListView Background="Transparent" Name="playListView" BorderThickness="0">
                     <ListView.Resources>
                         <ContextMenu x:Key="listViewContextMenu">

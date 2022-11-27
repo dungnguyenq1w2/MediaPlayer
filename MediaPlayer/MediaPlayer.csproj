@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <None Remove="Images\add.png" />
+    <None Remove="Images\document.png" />
     <None Remove="Images\maximize-size-option.png" />
     <None Remove="Images\mute-volume-control.png" />
     <None Remove="Images\Next.png" />
@@ -30,6 +31,7 @@
 
   <ItemGroup>
     <Resource Include="Images\add.png" />
+    <Resource Include="Images\document.png" />
     <Resource Include="Images\save-button.png" />
     <Resource Include="Images\maximize-size-option.png" />
     <Resource Include="Images\mute-volume-control.png" />
@@ -47,6 +49,9 @@
 
   <ItemGroup>
     <None Update="playlist.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="recentPlayedFiles.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
