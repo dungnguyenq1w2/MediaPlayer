@@ -35,7 +35,6 @@ namespace MediaPlayer
 
         ObservableCollection<MediaFile> _recentlyPlayedFiles = new ObservableCollection<MediaFile>();
 
-        public string DisplayName { get; set; }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
@@ -73,7 +72,6 @@ namespace MediaPlayer
             {
                 mediaGrid.ColumnDefinitions[1].Width = new GridLength(184, GridUnitType.Star);
                 playListView.ItemsSource = _mediaFilesInPlaylist;
-                DisplayName = "Current playlist";
             }
             else
             {
@@ -91,49 +89,49 @@ namespace MediaPlayer
 
         }
 
-        public string Keyword { get; set; }
-        private void keywordTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        public string Keyword { get; set; } // search playlist
+        public string SearchWord { get; set; } // search recent file
+        private void keywordTextBox_TextChanged(object sender, TextChangedEventArgs e) // text change playlist
         {
             if (Keyword == "")
             {
-                if (DisplayName == "Current playlist")
-                    playListView.ItemsSource = _mediaFilesInPlaylist;
-                else
-                    playListView.ItemsSource = _recentlyPlayedFiles;
+                playListView.ItemsSource = _mediaFilesInPlaylist;
             }
             else
             {
-                if (DisplayName == "Current playlist")
-                {
-                    var mediaFiles = new ObservableCollection<MediaFile>(_mediaFilesInPlaylist.Where(
-                                                    mediaFile => mediaFile.Name.ToLower().Contains(Keyword.ToLower())).ToList());
+                var mediaFiles = new ObservableCollection<MediaFile>(_mediaFilesInPlaylist.Where(
+                                mediaFile => mediaFile.Name.ToLower().Contains(Keyword.ToLower())).ToList());
 
-                    playListView.ItemsSource = mediaFiles;
-                }
-                else
-                {
-                    var mediaFiles = new ObservableCollection<MediaFile>(_recentlyPlayedFiles.Where(
-                                                    mediaFile => mediaFile.Name.ToLower().Contains(Keyword.ToLower())).ToList());
-
-                    playListView.ItemsSource = mediaFiles;
-                }
-
-
+                playListView.ItemsSource = mediaFiles;
             }
         }
 
         private void ViewRecentPlayedFiles_Click(object sender, RoutedEventArgs e)
         {
 
-            if (mediaGrid.ColumnDefinitions[1].Width == new GridLength(0))
+            if (mediaGrid.ColumnDefinitions[2].Width == new GridLength(0))
             {
-                mediaGrid.ColumnDefinitions[1].Width = new GridLength(184, GridUnitType.Star);
-                playListView.ItemsSource = _recentlyPlayedFiles;
-                DisplayName = "Recent played files";
+                mediaGrid.ColumnDefinitions[2].Width = new GridLength(184, GridUnitType.Star);
+                recentFilesView.ItemsSource = _recentlyPlayedFiles;
             }
             else
             {
-                mediaGrid.ColumnDefinitions[1].Width = new GridLength(0);
+                mediaGrid.ColumnDefinitions[2].Width = new GridLength(0);
+            }
+        }
+
+        private void searchTextBox_TextChanged(object sender, TextChangedEventArgs e) // text change recent files
+        {
+            if (SearchWord == "")
+            {
+                recentFilesView.ItemsSource = _recentlyPlayedFiles;
+            }
+            else
+            {
+                var mediaFiles = new ObservableCollection<MediaFile>(_recentlyPlayedFiles.Where(
+                                                mediaFile => mediaFile.Name.ToLower().Contains(SearchWord.ToLower())).ToList());
+
+                recentFilesView.ItemsSource = mediaFiles;
             }
         }
     }
