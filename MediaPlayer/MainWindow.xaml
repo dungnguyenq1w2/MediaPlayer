@@ -13,7 +13,7 @@
         <StackPanel DockPanel.Dock="Top">
             <Menu Background="#555" Foreground="White" Cursor="Hand" FontSize="15">
                 <MenuItem Header="File">
-                    <MenuItem Header="Open File" Foreground="Black" Click="ViewRecentPlayedFiles_Click">
+                    <MenuItem Header="Open File" Foreground="Black" Click="OpenMediaFile_Click">
                         <MenuItem.Icon>
                             <Image Source="/Images/document.png"/>
                         </MenuItem.Icon>
@@ -53,14 +53,11 @@
             <Button Name="BtnPrevious" Click="BtnPrevious_Click">
                 <Image Source="Images/Previous.png" Height="23"/>
             </Button>
-            <Button Padding="5" Focusable="False">
-                <Image Source="Images/play-button-arrowhead.png" Height="11"/>
-            </Button>
-            <Button Padding="5" Focusable="False">
-                <Image Source="Images/pause.png" Height="11"/>
+            <Button Padding="5" Focusable="False" Click="BtnPlay_Click">
+                <Image x:Name="PlayButtonIcon" Source="Images/play-button-arrowhead.png" Height="11"/>
             </Button>
 
-            <Button Padding="5" Focusable="False">
+            <Button Padding="5" Focusable="False" Click="BtnStop_Click">
                 <Image Source="Images/stop.png" Height="11"/>
             </Button>
             <Button Name="BtnNext" Click="BtnNext_Click">
@@ -83,53 +80,51 @@
                 </ItemsPanelTemplate>
             </StatusBar.ItemsPanel>
             <WrapPanel>
-                <TextBlock Text="00:00:00" FontSize="16" 
-                       Foreground="White" x:Name="txtTime"/>
+                <TextBlock Text="0:0:0" FontSize="16" 
+                       Foreground="#888" x:Name="txblockCurrentTime"/>
 
                 <TextBlock Text="/" FontSize="16" 
                            Foreground="White"/>
 
-                <TextBlock Text="00:00:00" FontSize="16" 
-                       Foreground="#888" x:Name="txtFullTime"/>
+                <TextBlock Text="0:0:0" FontSize="16" 
+                       Foreground="White" x:Name="txblockTotalTime"/>
             </WrapPanel>
 
             <StatusBarItem Grid.Column="1" HorizontalContentAlignment="Stretch">
-                <Slider x:Name="sliDuration" Thumb.DragCompleted="SliDuration_DragCompleted"
-                            IsMoveToPointEnabled="True"/>
+                <Slider x:Name="progressSlider"
+                            IsMoveToPointEnabled="True" ValueChanged="progressSlider_ValueChanged"/>
             </StatusBarItem>
 
             <StatusBarItem Grid.Column="2">
-                <Button x:Name="MuteButton">
-                    <Image Source="Images/volume.png" Height="17" Width="26"/>
+                <Button x:Name="MuteButton" Click="MuteButton_Click">
+                    <Image x:Name="MuteButtonIcon" Source="Images/volume.png" Height="17" Width="26"/>
                 </Button>
             </StatusBarItem>
 
             <StatusBarItem Grid.Column="3" HorizontalContentAlignment="Stretch" Width="80">
 
-                <Slider x:Name="sliVolume"
-                            Maximum="1" IsMoveToPointEnabled="True"/>
+                <Slider x:Name="volumeSlider"
+                            Maximum="1" IsMoveToPointEnabled="True" ValueChanged="volumeSlider_ValueChanged"/>
 
             </StatusBarItem>
             <StatusBarItem Grid.Column="4">
                 <WrapPanel>
                     <TextBlock Text="0%" FontSize="16" 
-                       Foreground="White" x:Name="txtVolume"/>
+                       Foreground="White" x:Name="txblockVolume"/>
                 </WrapPanel>
             </StatusBarItem>
         </StatusBar>
 
-        <Grid x:Name="mediaGrid" Background="#333" >
+        <Grid x:Name="mediaGrid" Background="#333">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="385*" />
                 <ColumnDefinition Width="0"/>
                 <ColumnDefinition Width="0"/>
             </Grid.ColumnDefinitions>
 
-            <StackPanel Grid.Column="0" Visibility="Hidden" Background="Transparent">
-                <MediaElement>
+            <MediaElement Grid.Column="0" x:Name="mediaElement" LoadedBehavior="Manual" MediaOpened="player_MediaOpened" MediaEnded="player_MediaEnded">
 
-                </MediaElement>
-            </StackPanel>
+            </MediaElement>
             <GridSplitter Width="2" Background="#444">
 
             </GridSplitter>
@@ -142,7 +137,7 @@
                 <ListView Background="Transparent" Name="playListView" BorderThickness="0">
                     <ListView.Resources>
                         <ContextMenu x:Key="listViewContextMenu">
-                            <MenuItem Header="Play">
+                            <MenuItem Header="Play" Click="PlayCurrentFile_Click">
                                 <MenuItem.Icon>
                                     <Image Source="/Images/play.png"/>
                                 </MenuItem.Icon>
@@ -152,7 +147,7 @@
                                     <Image Source="/Images/remove.png"/>
                                 </MenuItem.Icon>
                             </MenuItem>
-                            <MenuItem Header="Save current progress">
+                            <MenuItem Header="Save current progress" Click="SaveCurrentProgress_Click">
                                 <MenuItem.Icon>
                                     <Image Source="/Images/save-button.png"/>
                                 </MenuItem.Icon>
@@ -177,9 +172,9 @@
                                 <Run Text="{Binding Name}" Foreground="White"/>
                                 </TextBlock>
                                 <TextBlock Margin="5">
-                                <Run Text="{Binding totalTime}" Foreground="White"/>
+                                <Run Text="{Binding currentPlayedTime}" Foreground="Gray" x:Name="CurrentProgress"/>
                                 <Run Text="/" Foreground="White"/>
-                                <Run Text="{Binding currentPlayedTime}" Foreground="Gray"/>
+                                <Run Text="{Binding totalTime}" Foreground="White"/>
                                 </TextBlock>
                             </StackPanel>
                         </DataTemplate>
@@ -207,9 +202,9 @@
                                 <Run Text="{Binding Name}" Foreground="White"/>
                                 </TextBlock>
                                 <TextBlock Margin="5">
-                                <Run Text="{Binding totalTime}" Foreground="White"/>
-                                <Run Text="/" Foreground="White"/>
                                 <Run Text="{Binding currentPlayedTime}" Foreground="Gray"/>
+                                <Run Text="/" Foreground="White"/>
+                                <Run Text="{Binding totalTime}" Foreground="White"/>
                                 </TextBlock>
                             </StackPanel>
                         </DataTemplate>

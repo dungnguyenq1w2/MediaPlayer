@@ -10,7 +10,6 @@
   <ItemGroup>
     <None Remove="Images\add.png" />
     <None Remove="Images\document.png" />
-    <None Remove="Images\maximize-size-option.png" />
     <None Remove="Images\mute-volume-control.png" />
     <None Remove="Images\Next.png" />
     <None Remove="Images\pause.png" />
@@ -33,7 +32,6 @@
     <Resource Include="Images\add.png" />
     <Resource Include="Images\document.png" />
     <Resource Include="Images\save-button.png" />
-    <Resource Include="Images\maximize-size-option.png" />
     <Resource Include="Images\mute-volume-control.png" />
     <Resource Include="Images\Next.png" />
     <Resource Include="Images\pause.png" />
