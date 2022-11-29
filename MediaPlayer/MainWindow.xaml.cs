@@ -1,9 +1,11 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,6 +18,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace MediaPlayer
 {
@@ -26,6 +29,9 @@ namespace MediaPlayer
     {
         public event PropertyChangedEventHandler? PropertyChanged;
 
+        private bool _isMuted = false;
+        private bool _isPlayed = false;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -35,6 +41,7 @@ namespace MediaPlayer
 
         ObservableCollection<MediaFile> _recentlyPlayedFiles = new ObservableCollection<MediaFile>();
 
+        DispatcherTimer _timer;
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
@@ -48,22 +55,17 @@ namespace MediaPlayer
             {
                 string[] tokens = lines[i].Split(new string[] { " " }, StringSplitOptions.None);
 
-                _mediaFilesInPlaylist.Add(new MediaFile(tokens[0], tokens[1], tokens[2]));
+                _mediaFilesInPlaylist.Add(new MediaFile(tokens[0], tokens[1], tokens[2], tokens[3]));
             }
 
             for (int i = 0; i < lines2.Length; i++)
             {
                 string[] tokens = lines2[i].Split(new string[] { " " }, StringSplitOptions.None);
 
-                _recentlyPlayedFiles.Add(new MediaFile(tokens[0], tokens[1], tokens[2]));
+                _recentlyPlayedFiles.Add(new MediaFile(tokens[0], tokens[1], tokens[2], tokens[3]));
             }
 
             DataContext = this;
-        }
-
-        private void SliDuration_DragCompleted(object sender, System.Windows.Controls.Primitives.DragCompletedEventArgs e)
-        {
-
         }
 
         private void ViewPlaylist_Click(object sender, RoutedEventArgs e)
@@ -77,16 +79,6 @@ namespace MediaPlayer
             {
                 mediaGrid.ColumnDefinitions[1].Width = new GridLength(0);
             }
-        }
-
-        private void BtnNext_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void BtnPrevious_Click(object sender, RoutedEventArgs e)
-        {
-
         }
 
         public string Keyword { get; set; } // search playlist
@@ -133,6 +125,212 @@ namespace MediaPlayer
 
                 recentFilesView.ItemsSource = mediaFiles;
             }
+        }
+
+        private void OpenMediaFile_Click(object sender, RoutedEventArgs e)
+        {
+            var screen = new OpenFileDialog();
+            if (screen.ShowDialog() == true)
+            {
+                string fileName = screen.FileName;
+                mediaElement.Source = new Uri(fileName, UriKind.Absolute);
+
+                mediaElement.Play();
+                mediaElement.Stop();
+
+                _timer = new DispatcherTimer();
+                _timer.Interval = new TimeSpan(0, 0, 0, 1, 0); ;
+                _timer.Tick += _timer_Tick;
+            }
+        }
+
+        private void _timer_Tick(object? sender, EventArgs e)
+        {
+            int hours = mediaElement.Position.Hours;
+            int minutes = mediaElement.Position.Minutes;
+            int seconds = mediaElement.Position.Seconds;
+            txblockCurrentTime.Text = $"{hours}:{minutes}:{seconds}";
+            progressSlider.Value = mediaElement.Position.TotalSeconds;
+        }
+
+        private void player_MediaOpened(object sender, RoutedEventArgs e)
+        {
+            int hours = mediaElement.NaturalDuration.TimeSpan.Hours;
+            int minutes = mediaElement.NaturalDuration.TimeSpan.Minutes;
+            int seconds = mediaElement.NaturalDuration.TimeSpan.Seconds;
+            txblockTotalTime.Text = $"{hours}:{minutes}:{seconds}";
+
+            // cập nhật max value của slider
+            progressSlider.Maximum = mediaElement.NaturalDuration.TimeSpan.TotalSeconds;
+            volumeSlider.Value = mediaElement.Volume;
+
+            var value = Math.Round((double)volumeSlider.Value * 100, MidpointRounding.ToEven);
+            
+            txblockVolume.Text = $"{value}%";
+        }
+
+        private void player_MediaEnded(object sender, RoutedEventArgs e)
+        {
+            // Tự động chơi tập tin kế tiếp ở đây
+        }
+
+
+        #region btn
+        private void BtnPlay_Click(object sender, RoutedEventArgs e)
+        {
+            if (_isPlayed)
+            {
+                _isPlayed = false;
+                mediaElement.Pause();
+                _timer.Stop();
+
+                var bitmap = new BitmapImage();
+                bitmap.BeginInit();
+                bitmap.UriSource = new Uri(@"Images/play-button-arrowhead.png", UriKind.Relative);
+                bitmap.EndInit();
+
+                PlayButtonIcon.Source = bitmap;
+            }
+            else
+            {
+                _isPlayed = true;
+                mediaElement.Play();
+                _timer.Start();
+
+                var bitmap = new BitmapImage();
+                bitmap.BeginInit();
+                bitmap.UriSource = new Uri(@"Images/pause.png", UriKind.Relative);
+                bitmap.EndInit();
+
+                PlayButtonIcon.Source = bitmap;
+            }
+        }
+
+        private void BtnStop_Click(object sender, RoutedEventArgs e)
+        {
+            mediaElement.Stop();
+
+            var bitmap = new BitmapImage();
+            bitmap.BeginInit();
+            bitmap.UriSource = new Uri(@"Images/play-button-arrowhead.png", UriKind.Relative);
+            bitmap.EndInit();
+
+            PlayButtonIcon.Source = bitmap;
+        }
+
+        private void BtnNext_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void BtnPrevious_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+
+        private void MuteButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (_isMuted)
+            {
+                _isMuted = false;
+                volumeSlider.Value = 0.5;
+                mediaElement.Volume = (double)volumeSlider.Value;
+                var value = Math.Round((double)volumeSlider.Value * 100, MidpointRounding.ToEven);
+                txblockVolume.Text = $"{value}%";
+
+                var bitmap = new BitmapImage();
+                bitmap.BeginInit();
+                bitmap.UriSource = new Uri(@"Images/volume.png", UriKind.Relative);
+                bitmap.EndInit();
+
+                MuteButtonIcon.Source = bitmap;
+            }
+            else
+            {
+                _isMuted = true;
+                volumeSlider.Value = 0;
+                mediaElement.Volume = (double)volumeSlider.Value;
+                var value = Math.Round((double)volumeSlider.Value * 100, MidpointRounding.ToEven);
+                txblockVolume.Text = $"{value}%";
+
+                var bitmap = new BitmapImage();
+                bitmap.BeginInit();
+                bitmap.UriSource = new Uri(@"Images/mute-volume-control.png", UriKind.Relative);
+                bitmap.EndInit();
+
+                MuteButtonIcon.Source = bitmap;
+            }
+        }
+
+        #endregion
+
+        #region slider
+        private void progressSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            double value = progressSlider.Value;
+            TimeSpan newPosition = TimeSpan.FromSeconds(value);
+            mediaElement.Position = newPosition;
+            mediaElement.Volume = (double)volumeSlider.Value;
+        }
+
+        private void volumeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            mediaElement.Volume = (double)volumeSlider.Value;
+            var value = Math.Round((double)volumeSlider.Value * 100, MidpointRounding.ToEven);
+            txblockVolume.Text = $"{value}%";
+        }
+        #endregion
+
+
+        private void PlayCurrentFile_Click(object sender, RoutedEventArgs e)
+        {
+            int index = playListView.SelectedIndex;
+
+            if (index >= 0)
+            {
+                if (_isPlayed)
+                {
+                    _timer.Stop();
+                    mediaElement.Stop();
+                }
+
+                string fileName = _mediaFilesInPlaylist[index].filePath;
+
+                mediaElement.Source = new Uri(fileName, UriKind.Absolute);
+
+                double curPos = MediaFile.getCurrentTime(_mediaFilesInPlaylist[index].currentPlayedTime).TotalSeconds;
+                mediaElement.Position = TimeSpan.FromSeconds(curPos);
+
+                _timer = new DispatcherTimer();
+                _timer.Interval = new TimeSpan(0, 0, 0, 1, 0);
+                _timer.Tick += _timer_Tick;
+
+
+                var bitmap = new BitmapImage();
+                bitmap.BeginInit();
+                bitmap.UriSource = new Uri(@"Images/pause.png", UriKind.Relative);
+                bitmap.EndInit();
+
+                PlayButtonIcon.Source = bitmap;
+
+                mediaElement.Play();
+                _timer.Start();
+
+                _isPlayed = true;
+            }
+        }
+
+        private void SaveCurrentProgress_Click(object sender, RoutedEventArgs e)
+        {
+            int index = playListView.SelectedIndex;
+
+            if(index >= 0)
+            {
+                _mediaFilesInPlaylist[index].currentPlayedTime = txblockCurrentTime.Text;
+            }
+
+            playListView.ItemsSource = _mediaFilesInPlaylist;
         }
     }
 }
