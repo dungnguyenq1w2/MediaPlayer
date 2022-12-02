@@ -9,18 +9,53 @@ namespace MediaPlayer
 {
     public class MediaFile : INotifyPropertyChanged
     {
-        public string Name { get; set; }
-        public string totalTime { get; set; }
-        public string currentPlayedTime { get; set; }
+        private string _name = "";
+        private string _totalTime = "0:0:0";
+        private string _currentPlayedTime = "0:0:0";
+        private string _filePath = "";
+        private bool _isPlaying = false;
 
-        public string filePath { get; set; }
+        public string Name
+        {
+            get { return _name; }
+            set { _name = value; }
+        }
+        public string TotalTime
+        {
+            get { return _totalTime; }
+            set
+            {
+                _totalTime = value;
+            }
+        }
+        public string CurrentPlayedTime
+        {
+            get { return _currentPlayedTime; }
+            set
+            {
+                _currentPlayedTime = value;
+            }
+        }
 
+        public string FilePath
+        {
+            get { return _filePath; }
+            set { _filePath = value; }
+        }
+
+        public bool IsPlaying
+        {
+            get { return _isPlaying; }
+            set { _isPlaying = value; }
+        }
+
+        public MediaFile() {}
         public MediaFile(string name, string tolalTime, string currentPlayedTime, string filePath)
         {
             this.Name = name;
-            this.totalTime = tolalTime;
-            this.currentPlayedTime = currentPlayedTime;
-            this.filePath = filePath;
+            this.TotalTime = tolalTime;
+            this.CurrentPlayedTime = currentPlayedTime;
+            this.FilePath = filePath;
         }
 
         public static TimeSpan getCurrentTime(string currentPlayedTime)
@@ -30,5 +65,6 @@ namespace MediaPlayer
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
+
     }
 }

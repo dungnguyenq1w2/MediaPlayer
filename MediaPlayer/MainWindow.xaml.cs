@@ -1,4 +1,5 @@
-﻿using Microsoft.Win32;
+﻿using Microsoft.VisualBasic.FileIO;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -19,6 +20,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using static System.Net.WebRequestMethods;
 
 namespace MediaPlayer
 {
@@ -37,7 +39,9 @@ namespace MediaPlayer
             InitializeComponent();
         }
 
-        ObservableCollection<MediaFile> _mediaFilesInPlaylist = new ObservableCollection<MediaFile>();
+        //ObservableCollection<MediaFile> _mediaFilesInPlaylist = new ObservableCollection<MediaFile>();
+        //Duy code here
+        private BindingList<MediaFile> _mediaFilesInPlaylist = new BindingList<MediaFile>();
 
         ObservableCollection<MediaFile> _recentlyPlayedFiles = new ObservableCollection<MediaFile>();
 
@@ -45,25 +49,26 @@ namespace MediaPlayer
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            string filename = "playlist.txt";
-            string recentPlayed = "recentPlayedFiles.txt";
-            
-            string[] lines = File.ReadAllLines(filename);
-            string[] lines2 = File.ReadAllLines(recentPlayed);
-            
-            for(int i = 0; i < lines.Length; i++)
-            {
-                string[] tokens = lines[i].Split(new string[] { " " }, StringSplitOptions.None);
+            //string filename = "playlist.txt";
+            //string recentPlayed = "recentPlayedFiles.txt";
 
-                _mediaFilesInPlaylist.Add(new MediaFile(tokens[0], tokens[1], tokens[2], tokens[3]));
-            }
+            //string[] lines = System.IO.File.ReadAllLines(filename);
+            //string[] lines2 = System.IO.File.ReadAllLines(recentPlayed);
 
-            for (int i = 0; i < lines2.Length; i++)
-            {
-                string[] tokens = lines2[i].Split(new string[] { " " }, StringSplitOptions.None);
+            //for (int i = 0; i < lines.Length; i++)
+            //{
+            //    string[] tokens = lines[i].Split(new string[] { " " }, StringSplitOptions.None);
 
-                _recentlyPlayedFiles.Add(new MediaFile(tokens[0], tokens[1], tokens[2], tokens[3]));
-            }
+            //    _mediaFilesInPlaylist.Add(new MediaFile(tokens[0], tokens[1], tokens[2], tokens[3]));
+            //}
+
+            //for (int i = 0; i < lines2.Length; i++)
+            //{
+            //    string[] tokens = lines2[i].Split(new string[] { " " }, StringSplitOptions.None);
+
+            //    _recentlyPlayedFiles.Add(new MediaFile(tokens[0], tokens[1], tokens[2], tokens[3]));
+            //}
+            //playListView.ItemsSource = _mediaFilesInPlaylist;
 
             DataContext = this;
         }
@@ -119,6 +124,46 @@ namespace MediaPlayer
             }
         }
 
+        private void AddFilesPlaylist_Click(object sender, RoutedEventArgs e)
+        {
+            var screen = new Microsoft.Win32.OpenFileDialog
+            {
+                //Filter = audioExtension, :  Dùng để thêm nhiều loại file vào 
+                Multiselect = true
+            };
+            if (screen.ShowDialog() == true)
+            {
+
+                foreach (var filename in screen.FileNames)
+                {
+                    try
+                    {
+                        MediaFile mediaFile = new MediaFile()
+                        {
+                            Name = System.IO.Path.GetFileName(filename),
+                            FilePath = filename,
+                            IsPlaying = false,
+                        };
+                        MediaFile file = _mediaFilesInPlaylist.SingleOrDefault(e => e.FilePath == mediaFile.FilePath)!;
+                        if (file == null)
+                        {
+                            _mediaFilesInPlaylist.Add(mediaFile);
+
+                        }
+                        else
+                        {
+                            MessageBox.Show("File da ton tai");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Windows.MessageBox.Show($"Cannot play that file - {ex} ");
+                        continue;
+                    }
+                }
+                playListView.ItemsSource = _mediaFilesInPlaylist;
+            }
+        }
         private void OpenMediaFile_Click(object sender, RoutedEventArgs e)
         {
             var screen = new OpenFileDialog();
@@ -127,7 +172,6 @@ namespace MediaPlayer
                 string fileName = screen.FileName;
                 mediaElement.Source = new Uri(fileName, UriKind.Absolute);
 
-                mediaElement.Play();
                 mediaElement.Stop();
 
                 _timer = new DispatcherTimer();
@@ -157,7 +201,7 @@ namespace MediaPlayer
             volumeSlider.Value = mediaElement.Volume;
 
             var value = Math.Round((double)volumeSlider.Value * 100, MidpointRounding.ToEven);
-            
+
             txblockVolume.Text = $"{value}%";
         }
 
@@ -166,11 +210,10 @@ namespace MediaPlayer
             // Tự động chơi tập tin kế tiếp ở đây
         }
 
-
         #region btn
         private void BtnPlay_Click(object sender, RoutedEventArgs e)
         {
-            if(mediaElement.Source != null)
+            if (mediaElement.Source != null)
             {
                 if (_isPlayed)
                 {
@@ -203,7 +246,7 @@ namespace MediaPlayer
 
         private void BtnStop_Click(object sender, RoutedEventArgs e)
         {
-            if(mediaElement.Source != null)
+            if (mediaElement.Source != null)
             {
                 mediaElement.Stop();
 
@@ -217,8 +260,8 @@ namespace MediaPlayer
         }
 
         private void BtnNext_Click(object sender, RoutedEventArgs e)
-        { 
-            if(mediaElement.Source != null)
+        {
+            if (mediaElement.Source != null)
             {
 
             }
@@ -226,14 +269,14 @@ namespace MediaPlayer
 
         private void BtnPrevious_Click(object sender, RoutedEventArgs e)
         {
-            if(mediaElement.Source != null)
+            if (mediaElement.Source != null)
             {
 
             }
         }
         private void BtnShuffle_Click(object sender, RoutedEventArgs e)
         {
-            if(mediaElement.Source != null)
+            if (mediaElement.Source != null)
             {
 
             }
@@ -318,15 +361,19 @@ namespace MediaPlayer
                 if (_isPlayed)
                 {
                     _timer.Stop();
-                    mediaElement.Stop();
+                }
+                else
+                {
+                    mediaElement.Play();
                 }
 
-                string fileName = _mediaFilesInPlaylist[index].filePath;
+                string fileName = _mediaFilesInPlaylist[index].FilePath;
 
                 mediaElement.Source = new Uri(fileName, UriKind.Absolute);
 
-                double curPos = MediaFile.getCurrentTime(_mediaFilesInPlaylist[index].currentPlayedTime).TotalSeconds;
+                double curPos = MediaFile.getCurrentTime(_mediaFilesInPlaylist[index].CurrentPlayedTime).TotalSeconds;
                 mediaElement.Position = TimeSpan.FromSeconds(curPos);
+                progressSlider.Value = mediaElement.Position.TotalSeconds;
 
                 _timer = new DispatcherTimer();
                 _timer.Interval = new TimeSpan(0, 0, 0, 1, 0);
@@ -351,9 +398,9 @@ namespace MediaPlayer
         {
             int index = playListView.SelectedIndex;
 
-            if(index >= 0)
+            if (index >= 0)
             {
-                _mediaFilesInPlaylist[index].currentPlayedTime = txblockCurrentTime.Text;
+                _mediaFilesInPlaylist[index].CurrentPlayedTime = txblockCurrentTime.Text;
             }
 
             playListView.ItemsSource = _mediaFilesInPlaylist;
