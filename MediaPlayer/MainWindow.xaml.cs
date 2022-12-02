@@ -75,10 +75,6 @@ namespace MediaPlayer
                 mediaGrid.ColumnDefinitions[1].Width = new GridLength(184, GridUnitType.Star);
                 playListView.ItemsSource = _mediaFilesInPlaylist;
             }
-            else
-            {
-                mediaGrid.ColumnDefinitions[1].Width = new GridLength(0);
-            }
         }
 
         public string Keyword { get; set; } // search playlist
@@ -105,10 +101,6 @@ namespace MediaPlayer
             {
                 mediaGrid.ColumnDefinitions[2].Width = new GridLength(184, GridUnitType.Star);
                 recentFilesView.ItemsSource = _recentlyPlayedFiles;
-            }
-            else
-            {
-                mediaGrid.ColumnDefinitions[2].Width = new GridLength(0);
             }
         }
 
@@ -178,11 +170,42 @@ namespace MediaPlayer
         #region btn
         private void BtnPlay_Click(object sender, RoutedEventArgs e)
         {
-            if (_isPlayed)
+            if(mediaElement.Source != null)
             {
-                _isPlayed = false;
-                mediaElement.Pause();
-                _timer.Stop();
+                if (_isPlayed)
+                {
+                    _isPlayed = false;
+                    mediaElement.Pause();
+                    _timer.Stop();
+
+                    var bitmap = new BitmapImage();
+                    bitmap.BeginInit();
+                    bitmap.UriSource = new Uri(@"Images/play-button-arrowhead.png", UriKind.Relative);
+                    bitmap.EndInit();
+
+                    PlayButtonIcon.Source = bitmap;
+                }
+                else
+                {
+                    _isPlayed = true;
+                    mediaElement.Play();
+                    _timer.Start();
+
+                    var bitmap = new BitmapImage();
+                    bitmap.BeginInit();
+                    bitmap.UriSource = new Uri(@"Images/pause.png", UriKind.Relative);
+                    bitmap.EndInit();
+
+                    PlayButtonIcon.Source = bitmap;
+                }
+            }
+        }
+
+        private void BtnStop_Click(object sender, RoutedEventArgs e)
+        {
+            if(mediaElement.Source != null)
+            {
+                mediaElement.Stop();
 
                 var bitmap = new BitmapImage();
                 bitmap.BeginInit();
@@ -191,43 +214,30 @@ namespace MediaPlayer
 
                 PlayButtonIcon.Source = bitmap;
             }
-            else
-            {
-                _isPlayed = true;
-                mediaElement.Play();
-                _timer.Start();
-
-                var bitmap = new BitmapImage();
-                bitmap.BeginInit();
-                bitmap.UriSource = new Uri(@"Images/pause.png", UriKind.Relative);
-                bitmap.EndInit();
-
-                PlayButtonIcon.Source = bitmap;
-            }
-        }
-
-        private void BtnStop_Click(object sender, RoutedEventArgs e)
-        {
-            mediaElement.Stop();
-
-            var bitmap = new BitmapImage();
-            bitmap.BeginInit();
-            bitmap.UriSource = new Uri(@"Images/play-button-arrowhead.png", UriKind.Relative);
-            bitmap.EndInit();
-
-            PlayButtonIcon.Source = bitmap;
         }
 
         private void BtnNext_Click(object sender, RoutedEventArgs e)
-        {
+        { 
+            if(mediaElement.Source != null)
+            {
 
+            }
         }
 
         private void BtnPrevious_Click(object sender, RoutedEventArgs e)
         {
+            if(mediaElement.Source != null)
+            {
 
+            }
         }
+        private void BtnShuffle_Click(object sender, RoutedEventArgs e)
+        {
+            if(mediaElement.Source != null)
+            {
 
+            }
+        }
 
         private void MuteButton_Click(object sender, RoutedEventArgs e)
         {
@@ -260,6 +270,22 @@ namespace MediaPlayer
                 bitmap.EndInit();
 
                 MuteButtonIcon.Source = bitmap;
+            }
+        }
+
+        private void BtnClosePlaylist_Click(object sender, RoutedEventArgs e)
+        {
+            if (mediaGrid.ColumnDefinitions[1].Width != new GridLength(0))
+            {
+                mediaGrid.ColumnDefinitions[1].Width = new GridLength(0);
+            }
+        }
+
+        private void BtnCloseRecentFilesList_Click(object sender, RoutedEventArgs e)
+        {
+            if (mediaGrid.ColumnDefinitions[2].Width != new GridLength(0))
+            {
+                mediaGrid.ColumnDefinitions[2].Width = new GridLength(0);
             }
         }
 

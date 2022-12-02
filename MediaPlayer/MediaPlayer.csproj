@@ -9,16 +9,19 @@
 
   <ItemGroup>
     <None Remove="Images\add.png" />
+    <None Remove="Images\close.png" />
     <None Remove="Images\document.png" />
     <None Remove="Images\mute-volume-control.png" />
     <None Remove="Images\Next.png" />
     <None Remove="Images\pause.png" />
     <None Remove="Images\play-button-arrowhead.png" />
     <None Remove="Images\play.png" />
+    <None Remove="Images\playlist.png" />
     <None Remove="Images\Previous.png" />
     <None Remove="Images\remove.png" />
     <None Remove="Images\save-button.png" />
-    <None Remove="Images\shuffle.png" />
+    <None Remove="Images\shuffle-button.png" />
+    <None Remove="Images\shuffle-click.png" />
     <None Remove="Images\stop.png" />
     <None Remove="Images\view-playlist.png" />
     <None Remove="Images\volume.png" />
@@ -30,7 +33,9 @@
 
   <ItemGroup>
     <Resource Include="Images\add.png" />
+    <Resource Include="Images\close.png" />
     <Resource Include="Images\document.png" />
+    <Resource Include="Images\playlist.png" />
     <Resource Include="Images\save-button.png" />
     <Resource Include="Images\mute-volume-control.png" />
     <Resource Include="Images\Next.png" />
@@ -39,7 +44,8 @@
     <Resource Include="Images\play.png" />
     <Resource Include="Images\Previous.png" />
     <Resource Include="Images\remove.png" />
-    <Resource Include="Images\shuffle.png" />
+    <Resource Include="Images\shuffle-button.png" />
+    <Resource Include="Images\shuffle-click.png" />
     <Resource Include="Images\stop.png" />
     <Resource Include="Images\view-playlist.png" />
     <Resource Include="Images\volume.png" />
