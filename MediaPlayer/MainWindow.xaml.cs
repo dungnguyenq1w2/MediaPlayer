@@ -40,12 +40,12 @@ namespace MediaPlayer
         }
 
         //ObservableCollection<MediaFile> _mediaFilesInPlaylist = new ObservableCollection<MediaFile>();
-        //Duy code here
+        
         private BindingList<MediaFile> _mediaFilesInPlaylist = new BindingList<MediaFile>();
 
-        ObservableCollection<MediaFile> _recentlyPlayedFiles = new ObservableCollection<MediaFile>();
+        private BindingList<MediaFile> _recentlyPlayedFiles = new BindingList<MediaFile>();
 
-        DispatcherTimer _timer;
+        private DispatcherTimer _timer;
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
@@ -199,10 +199,10 @@ namespace MediaPlayer
         }
 
         #region Helper
-        private ObservableCollection<MediaFile> loadPlayList(string fileName)
+        private BindingList<MediaFile> loadPlayList(string fileName)
         {
-            ObservableCollection<MediaFile> playlist = new ObservableCollection<MediaFile>();
-            string[] lines = File.ReadAllLines(fileName);
+            BindingList<MediaFile> playlist = new BindingList<MediaFile>();
+            string[] lines = System.IO.File.ReadAllLines(fileName);
 
             for (int i = 0; i < lines.Length; i++)
             {
@@ -406,6 +406,9 @@ namespace MediaPlayer
                 {
                     _timer.Stop();
                     mediaElement.Stop();
+                    
+                    //mediaElement.Source = null;
+                    // Play next video
                 }
                 _mediaFilesInPlaylist.RemoveAt(index);
             }
