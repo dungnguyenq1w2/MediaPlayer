@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -33,6 +34,7 @@ namespace MediaPlayer
 
         private bool _isMuted = false;
         private bool _isPlayed = false;
+        private int _playingVideoIndex = -1;
 
         public MainWindow()
         {
@@ -40,7 +42,7 @@ namespace MediaPlayer
         }
 
         //ObservableCollection<MediaFile> _mediaFilesInPlaylist = new ObservableCollection<MediaFile>();
-        
+
         private BindingList<MediaFile> _mediaFilesInPlaylist = new BindingList<MediaFile>();
 
         private BindingList<MediaFile> _recentlyPlayedFiles = new BindingList<MediaFile>();
@@ -183,7 +185,7 @@ namespace MediaPlayer
             int minutes = mediaElement.NaturalDuration.TimeSpan.Minutes;
             int seconds = mediaElement.NaturalDuration.TimeSpan.Seconds;
             txblockTotalTime.Text = $"{hours}:{minutes}:{seconds}";
-              
+
             // cập nhật max value của slider
             progressSlider.Maximum = mediaElement.NaturalDuration.TimeSpan.TotalSeconds;
             volumeSlider.Value = mediaElement.Volume;
@@ -267,7 +269,42 @@ namespace MediaPlayer
         {
             if (mediaElement.Source != null)
             {
+                if (_playingVideoIndex == _mediaFilesInPlaylist.Count - 1 && _playingVideoIndex == 0)
+                {
+                    return;
+                }
+                else if (_playingVideoIndex == _mediaFilesInPlaylist.Count - 1)
+                {
+                    return;
+                }
+                else
+                {
+                    _playingVideoIndex++;
+                }
 
+                string fileName = _mediaFilesInPlaylist[_playingVideoIndex].FilePath;
+
+                mediaElement.Source = new Uri(fileName, UriKind.Absolute);
+
+                double curPos = MediaFile.getCurrentTime(_mediaFilesInPlaylist[_playingVideoIndex].CurrentPlayedTime).TotalSeconds;
+                mediaElement.Position = TimeSpan.FromSeconds(curPos);
+                progressSlider.Value = mediaElement.Position.TotalSeconds;
+
+                _timer = new DispatcherTimer();
+                _timer.Interval = new TimeSpan(0, 0, 0, 1, 0);
+                _timer.Tick += _timer_Tick;
+
+                var bitmap = new BitmapImage();
+                bitmap.BeginInit();
+                bitmap.UriSource = new Uri(@"Images/pause.png", UriKind.Relative);
+                bitmap.EndInit();
+
+                PlayButtonIcon.Source = bitmap;
+
+                mediaElement.Play();
+                _timer.Start();
+
+                _isPlayed = true;
             }
         }
 
@@ -275,9 +312,45 @@ namespace MediaPlayer
         {
             if (mediaElement.Source != null)
             {
+                if (_playingVideoIndex == _mediaFilesInPlaylist.Count - 1 && _playingVideoIndex == 0)
+                {
+                    return;
+                }
+                else if (_playingVideoIndex == 0)
+                {
+                    return;
+                }
+                else
+                {
+                    _playingVideoIndex--;
+                }
 
+                string fileName = _mediaFilesInPlaylist[_playingVideoIndex].FilePath;
+
+                mediaElement.Source = new Uri(fileName, UriKind.Absolute);
+
+                double curPos = MediaFile.getCurrentTime(_mediaFilesInPlaylist[_playingVideoIndex].CurrentPlayedTime).TotalSeconds;
+                mediaElement.Position = TimeSpan.FromSeconds(curPos);
+                progressSlider.Value = mediaElement.Position.TotalSeconds;
+
+                _timer = new DispatcherTimer();
+                _timer.Interval = new TimeSpan(0, 0, 0, 1, 0);
+                _timer.Tick += _timer_Tick;
+
+                var bitmap = new BitmapImage();
+                bitmap.BeginInit();
+                bitmap.UriSource = new Uri(@"Images/pause.png", UriKind.Relative);
+                bitmap.EndInit();
+
+                PlayButtonIcon.Source = bitmap;
+
+                mediaElement.Play();
+                _timer.Start();
+
+                _isPlayed = true;
             }
         }
+
         private void BtnShuffle_Click(object sender, RoutedEventArgs e)
         {
             if (mediaElement.Source != null)
@@ -389,26 +462,40 @@ namespace MediaPlayer
 
                 PlayButtonIcon.Source = bitmap;
 
+                _playingVideoIndex = index;
+
                 mediaElement.Play();
                 _timer.Start();
 
                 _isPlayed = true;
             }
         }
-         
+
         private void RemoveFileFromPlayList_Click(object sender, RoutedEventArgs e)
         {
             int index = playListView.SelectedIndex;
 
             if (index >= 0)
             {
-                if (_isPlayed)
+                if (_isPlayed && index == _playingVideoIndex)
                 {
-                    _timer.Stop();
-                    mediaElement.Stop();
-                    
-                    //mediaElement.Source = null;
-                    // Play next video
+                    if (_playingVideoIndex == _mediaFilesInPlaylist.Count - 1 && _playingVideoIndex == 0)
+                    {
+                        _timer.Stop();
+                        txblockCurrentTime.Text = "00:00";
+                        txblockTotalTime.Text = "00:00";
+                        txblockVolume.Text = "0%";
+
+                        progressSlider.Value = 0;
+                        volumeSlider.Value = 0;
+
+                        mediaElement.Source = null;
+                    }
+                    else
+                    {
+                        // Play next video
+                        BtnNext_Click(sender, e);
+                    }
                 }
                 _mediaFilesInPlaylist.RemoveAt(index);
             }
@@ -425,6 +512,5 @@ namespace MediaPlayer
 
             playListView.ItemsSource = _mediaFilesInPlaylist;
         }
-
     }
 }
