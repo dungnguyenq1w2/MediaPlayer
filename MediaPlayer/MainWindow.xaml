@@ -6,9 +6,11 @@
         xmlns:local="clr-namespace:MediaPlayer"
         mc:Ignorable="d"
         Title="MediaPlayer" Height="450" Width="900" Loaded="Window_Loaded">
+    
     <Window.Resources>
         <ResourceDictionary Source="CustomSliderAndButtonDictionary.xaml"/>
     </Window.Resources>
+    
     <DockPanel>
         <StackPanel DockPanel.Dock="Top">
             <Menu Background="#555" Foreground="White" Cursor="Hand" FontSize="15">
@@ -118,16 +120,14 @@
         <Grid x:Name="mediaGrid" Background="#333">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="385*" />
-                <ColumnDefinition Width="0"/>
-                <ColumnDefinition Width="0"/>
+                <ColumnDefinition Width="180"/>
+                <ColumnDefinition Width="180"/>
             </Grid.ColumnDefinitions>
 
-            <MediaElement Grid.Column="0" x:Name="mediaElement" LoadedBehavior="Manual" MediaOpened="player_MediaOpened" MediaEnded="player_MediaEnded">
+            <MediaElement Grid.Column="0" x:Name="mediaElement" LoadedBehavior="Manual" MediaOpened="player_MediaOpened" MediaEnded="player_MediaEnded" ScrubbingEnabled="True"/>
 
-            </MediaElement>
-            <GridSplitter Width="2" Background="#444">
+            <GridSplitter Width="2" Background="#444"/>
 
-            </GridSplitter>
             <DockPanel Grid.Column="1">
                 <TextBox x:Name="keywordTextBox" Text="{Binding Keyword, UpdateSourceTrigger=PropertyChanged}" TextChanged="keywordTextBox_TextChanged" DockPanel.Dock="Top">
                 </TextBox>
@@ -146,7 +146,7 @@
                                     <Image Source="/Images/play.png"/>
                                 </MenuItem.Icon>
                             </MenuItem>
-                            <MenuItem Header="Remove">
+                            <MenuItem Header="Remove" Click="RemoveFileFromPlayList_Click">
                                 <MenuItem.Icon>
                                     <Image Source="/Images/remove.png"/>
                                 </MenuItem.Icon>

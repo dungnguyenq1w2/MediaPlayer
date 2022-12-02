@@ -47,24 +47,11 @@ namespace MediaPlayer
         {
             string filename = "playlist.txt";
             string recentPlayed = "recentPlayedFiles.txt";
-            
-            string[] lines = File.ReadAllLines(filename);
-            string[] lines2 = File.ReadAllLines(recentPlayed);
-            
-            for(int i = 0; i < lines.Length; i++)
-            {
-                string[] tokens = lines[i].Split(new string[] { " " }, StringSplitOptions.None);
 
-                _mediaFilesInPlaylist.Add(new MediaFile(tokens[0], tokens[1], tokens[2], tokens[3]));
-            }
+            _mediaFilesInPlaylist = loadPlayList(filename);
+            _recentlyPlayedFiles = loadPlayList(recentPlayed);
 
-            for (int i = 0; i < lines2.Length; i++)
-            {
-                string[] tokens = lines2[i].Split(new string[] { " " }, StringSplitOptions.None);
-
-                _recentlyPlayedFiles.Add(new MediaFile(tokens[0], tokens[1], tokens[2], tokens[3]));
-            }
-
+            playListView.ItemsSource = _mediaFilesInPlaylist;
             DataContext = this;
         }
 
@@ -78,7 +65,9 @@ namespace MediaPlayer
         }
 
         public string Keyword { get; set; } // search playlist
+
         public string SearchWord { get; set; } // search recent file
+
         private void keywordTextBox_TextChanged(object sender, TextChangedEventArgs e) // text change playlist
         {
             if (Keyword == "")
@@ -151,13 +140,13 @@ namespace MediaPlayer
             int minutes = mediaElement.NaturalDuration.TimeSpan.Minutes;
             int seconds = mediaElement.NaturalDuration.TimeSpan.Seconds;
             txblockTotalTime.Text = $"{hours}:{minutes}:{seconds}";
-
+              
             // cập nhật max value của slider
             progressSlider.Maximum = mediaElement.NaturalDuration.TimeSpan.TotalSeconds;
             volumeSlider.Value = mediaElement.Volume;
 
             var value = Math.Round((double)volumeSlider.Value * 100, MidpointRounding.ToEven);
-            
+
             txblockVolume.Text = $"{value}%";
         }
 
@@ -166,11 +155,26 @@ namespace MediaPlayer
             // Tự động chơi tập tin kế tiếp ở đây
         }
 
+        #region Helper
+        private ObservableCollection<MediaFile> loadPlayList(string fileName)
+        {
+            ObservableCollection<MediaFile> playlist = new ObservableCollection<MediaFile>();
+            string[] lines = File.ReadAllLines(fileName);
+
+            for (int i = 0; i < lines.Length; i++)
+            {
+                string[] tokens = lines[i].Split(new string[] { "|" }, StringSplitOptions.None);
+
+                playlist.Add(new MediaFile(tokens[0], tokens[1], tokens[2], tokens[3]));
+            }
+            return playlist;
+        }
+        #endregion
 
         #region btn
         private void BtnPlay_Click(object sender, RoutedEventArgs e)
         {
-            if(mediaElement.Source != null)
+            if (mediaElement.Source != null)
             {
                 if (_isPlayed)
                 {
@@ -203,7 +207,7 @@ namespace MediaPlayer
 
         private void BtnStop_Click(object sender, RoutedEventArgs e)
         {
-            if(mediaElement.Source != null)
+            if (mediaElement.Source != null)
             {
                 mediaElement.Stop();
 
@@ -217,8 +221,8 @@ namespace MediaPlayer
         }
 
         private void BtnNext_Click(object sender, RoutedEventArgs e)
-        { 
-            if(mediaElement.Source != null)
+        {
+            if (mediaElement.Source != null)
             {
 
             }
@@ -226,14 +230,14 @@ namespace MediaPlayer
 
         private void BtnPrevious_Click(object sender, RoutedEventArgs e)
         {
-            if(mediaElement.Source != null)
+            if (mediaElement.Source != null)
             {
 
             }
         }
         private void BtnShuffle_Click(object sender, RoutedEventArgs e)
         {
-            if(mediaElement.Source != null)
+            if (mediaElement.Source != null)
             {
 
             }
@@ -288,7 +292,6 @@ namespace MediaPlayer
                 mediaGrid.ColumnDefinitions[2].Width = new GridLength(0);
             }
         }
-
         #endregion
 
         #region slider
@@ -332,7 +335,6 @@ namespace MediaPlayer
                 _timer.Interval = new TimeSpan(0, 0, 0, 1, 0);
                 _timer.Tick += _timer_Tick;
 
-
                 var bitmap = new BitmapImage();
                 bitmap.BeginInit();
                 bitmap.UriSource = new Uri(@"Images/pause.png", UriKind.Relative);
@@ -346,17 +348,33 @@ namespace MediaPlayer
                 _isPlayed = true;
             }
         }
+         
+        private void RemoveFileFromPlayList_Click(object sender, RoutedEventArgs e)
+        {
+            int index = playListView.SelectedIndex;
+
+            if (index >= 0)
+            {
+                if (_isPlayed)
+                {
+                    _timer.Stop();
+                    mediaElement.Stop();
+                }
+                _mediaFilesInPlaylist.RemoveAt(index);
+            }
+        }
 
         private void SaveCurrentProgress_Click(object sender, RoutedEventArgs e)
         {
             int index = playListView.SelectedIndex;
 
-            if(index >= 0)
+            if (index >= 0)
             {
                 _mediaFilesInPlaylist[index].currentPlayedTime = txblockCurrentTime.Text;
             }
 
             playListView.ItemsSource = _mediaFilesInPlaylist;
         }
+
     }
 }
