@@ -393,46 +393,21 @@ namespace MediaPlayer
             }
         }
 
-        private void BtnClosePlaylist_Click(object sender, RoutedEventArgs e)
+        private int GetIndexFromName(string tagName)
         {
-            if (mediaGrid.ColumnDefinitions[1].Width != new GridLength(0))
+            for (int i = 0; i < _mediaFilesInPlaylist.Count; i++)
             {
-                mediaGrid.ColumnDefinitions[1].Width = new GridLength(0);
+                if (_mediaFilesInPlaylist[i].Name == tagName)
+                    return i;
             }
+            return -1;
         }
-
-        private void BtnCloseRecentFilesList_Click(object sender, RoutedEventArgs e)
-        {
-            if (mediaGrid.ColumnDefinitions[2].Width != new GridLength(0))
-            {
-                mediaGrid.ColumnDefinitions[2].Width = new GridLength(0);
-            }
-        }
-        #endregion
-
-        #region slider
-        private void progressSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            double value = progressSlider.Value;
-            TimeSpan newPosition = TimeSpan.FromSeconds(value);
-            mediaElement.Position = newPosition;
-            mediaElement.Volume = (double)volumeSlider.Value;
-        }
-
-        private void volumeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            mediaElement.Volume = (double)volumeSlider.Value;
-            var value = Math.Round((double)volumeSlider.Value * 100, MidpointRounding.ToEven);
-            txblockVolume.Text = $"{value}%";
-        }
-        #endregion
-
 
         private void PlayCurrentFile_Click(object sender, RoutedEventArgs e)
         {
-            int index = playListView.SelectedIndex;
-
-            if (index >= 0)
+            string tag = (string)((Button)sender).Tag;
+            int index = GetIndexFromName(tag);
+            if(index >= 0)
             {
                 if (_isPlayed)
                 {
@@ -471,6 +446,40 @@ namespace MediaPlayer
             }
         }
 
+        private void BtnClosePlaylist_Click(object sender, RoutedEventArgs e)
+        {
+            if (mediaGrid.ColumnDefinitions[1].Width != new GridLength(0))
+            {
+                mediaGrid.ColumnDefinitions[1].Width = new GridLength(0);
+            }
+        }
+
+        private void BtnCloseRecentFilesList_Click(object sender, RoutedEventArgs e)
+        {
+            if (mediaGrid.ColumnDefinitions[2].Width != new GridLength(0))
+            {
+                mediaGrid.ColumnDefinitions[2].Width = new GridLength(0);
+            }
+        }
+        #endregion
+
+        #region slider
+        private void progressSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            double value = progressSlider.Value;
+            TimeSpan newPosition = TimeSpan.FromSeconds(value);
+            mediaElement.Position = newPosition;
+            mediaElement.Volume = (double)volumeSlider.Value;
+        }
+
+        private void volumeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            mediaElement.Volume = (double)volumeSlider.Value;
+            var value = Math.Round((double)volumeSlider.Value * 100, MidpointRounding.ToEven);
+            txblockVolume.Text = $"{value}%";
+        }
+        #endregion
+         
         private void RemoveFileFromPlayList_Click(object sender, RoutedEventArgs e)
         {
             int index = playListView.SelectedIndex;
