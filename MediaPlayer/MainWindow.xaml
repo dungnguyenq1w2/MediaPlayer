@@ -32,7 +32,7 @@
                             <Image Source="/Images/view-playlist.png"/>
                         </MenuItem.Icon>
                     </MenuItem>
-                    <MenuItem Header="Add files to Playlist" Foreground="Black">
+                    <MenuItem Header="Add files to Playlist" Foreground="Black" Click="AddFilesPlaylist_Click">
                         <MenuItem.Icon>
                             <Image Source="/Images/add.png"/>
                         </MenuItem.Icon>
@@ -120,8 +120,8 @@
         <Grid x:Name="mediaGrid" Background="#333">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="385*" />
-                <ColumnDefinition Width="180"/>
-                <ColumnDefinition Width="180"/>
+                <ColumnDefinition Width="184*"/>
+                <ColumnDefinition Width="0"/>
             </Grid.ColumnDefinitions>
 
             <MediaElement Grid.Column="0" x:Name="mediaElement" LoadedBehavior="Manual" MediaOpened="player_MediaOpened" MediaEnded="player_MediaEnded" ScrubbingEnabled="True"/>
@@ -134,6 +134,9 @@
                 <DockPanel DockPanel.Dock="Top" HorizontalAlignment="Stretch">
                     <Image Source="Images/playlist.png" Height="20" Margin="5"/>
                     <Label Content="Your Playlist" Foreground="White" FontSize="20"/>
+                    <Button Margin="10, 0, 0, 0" Focusable="False" Foreground="Transparent" Click="AddFilesPlaylist_Click">
+                        <Image Source="Images/add.png" Height="24"/>
+                    </Button>
                     <Button x:Name="BtnClosePlaylist" Click="BtnClosePlaylist_Click" Height="35" Width="22" HorizontalAlignment="Right">
                         <Image Source="Images/close.png"/>
                     </Button>
@@ -175,11 +178,7 @@
                                 <TextBlock Margin="5">
                                 <Run Text="{Binding Name}" Foreground="White"/>
                                 </TextBlock>
-                                <TextBlock Margin="5">
-                                <Run Text="{Binding currentPlayedTime}" Foreground="Gray" x:Name="CurrentProgress"/>
-                                <Run Text="/" Foreground="White"/>
-                                <Run Text="{Binding totalTime}" Foreground="White"/>
-                                </TextBlock>
+
                             </StackPanel>
                         </DataTemplate>
                     </ListView.ItemTemplate>

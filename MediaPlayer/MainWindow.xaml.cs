@@ -1,4 +1,5 @@
-﻿using Microsoft.Win32;
+﻿using Microsoft.VisualBasic.FileIO;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -19,6 +20,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using static System.Net.WebRequestMethods;
 
 namespace MediaPlayer
 {
@@ -37,7 +39,9 @@ namespace MediaPlayer
             InitializeComponent();
         }
 
-        ObservableCollection<MediaFile> _mediaFilesInPlaylist = new ObservableCollection<MediaFile>();
+        //ObservableCollection<MediaFile> _mediaFilesInPlaylist = new ObservableCollection<MediaFile>();
+        //Duy code here
+        private BindingList<MediaFile> _mediaFilesInPlaylist = new BindingList<MediaFile>();
 
         ObservableCollection<MediaFile> _recentlyPlayedFiles = new ObservableCollection<MediaFile>();
 
@@ -108,6 +112,46 @@ namespace MediaPlayer
             }
         }
 
+        private void AddFilesPlaylist_Click(object sender, RoutedEventArgs e)
+        {
+            var screen = new Microsoft.Win32.OpenFileDialog
+            {
+                //Filter = audioExtension, :  Dùng để thêm nhiều loại file vào 
+                Multiselect = true
+            };
+            if (screen.ShowDialog() == true)
+            {
+
+                foreach (var filename in screen.FileNames)
+                {
+                    try
+                    {
+                        MediaFile mediaFile = new MediaFile()
+                        {
+                            Name = System.IO.Path.GetFileName(filename),
+                            FilePath = filename,
+                            IsPlaying = false,
+                        };
+                        MediaFile file = _mediaFilesInPlaylist.SingleOrDefault(e => e.FilePath == mediaFile.FilePath)!;
+                        if (file == null)
+                        {
+                            _mediaFilesInPlaylist.Add(mediaFile);
+
+                        }
+                        else
+                        {
+                            MessageBox.Show("File da ton tai");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Windows.MessageBox.Show($"Cannot play that file - {ex} ");
+                        continue;
+                    }
+                }
+                playListView.ItemsSource = _mediaFilesInPlaylist;
+            }
+        }
         private void OpenMediaFile_Click(object sender, RoutedEventArgs e)
         {
             var screen = new OpenFileDialog();
@@ -116,7 +160,6 @@ namespace MediaPlayer
                 string fileName = screen.FileName;
                 mediaElement.Source = new Uri(fileName, UriKind.Absolute);
 
-                mediaElement.Play();
                 mediaElement.Stop();
 
                 _timer = new DispatcherTimer();
@@ -321,15 +364,19 @@ namespace MediaPlayer
                 if (_isPlayed)
                 {
                     _timer.Stop();
-                    mediaElement.Stop();
+                }
+                else
+                {
+                    mediaElement.Play();
                 }
 
-                string fileName = _mediaFilesInPlaylist[index].filePath;
+                string fileName = _mediaFilesInPlaylist[index].FilePath;
 
                 mediaElement.Source = new Uri(fileName, UriKind.Absolute);
 
-                double curPos = MediaFile.getCurrentTime(_mediaFilesInPlaylist[index].currentPlayedTime).TotalSeconds;
+                double curPos = MediaFile.getCurrentTime(_mediaFilesInPlaylist[index].CurrentPlayedTime).TotalSeconds;
                 mediaElement.Position = TimeSpan.FromSeconds(curPos);
+                progressSlider.Value = mediaElement.Position.TotalSeconds;
 
                 _timer = new DispatcherTimer();
                 _timer.Interval = new TimeSpan(0, 0, 0, 1, 0);
@@ -370,7 +417,7 @@ namespace MediaPlayer
 
             if (index >= 0)
             {
-                _mediaFilesInPlaylist[index].currentPlayedTime = txblockCurrentTime.Text;
+                _mediaFilesInPlaylist[index].CurrentPlayedTime = txblockCurrentTime.Text;
             }
 
             playListView.ItemsSource = _mediaFilesInPlaylist;
