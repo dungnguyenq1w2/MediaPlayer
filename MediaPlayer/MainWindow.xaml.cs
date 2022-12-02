@@ -214,6 +214,34 @@ namespace MediaPlayer
             }
             return playlist;
         }
+
+        private void playVideoInPlayList(int index)
+        {
+            string fileName = _mediaFilesInPlaylist[index].FilePath;
+
+            mediaElement.Source = new Uri(fileName, UriKind.Absolute);
+
+            double curPos = MediaFile.getCurrentTime(_mediaFilesInPlaylist[index].CurrentPlayedTime).TotalSeconds;
+            mediaElement.Position = TimeSpan.FromSeconds(curPos);
+            progressSlider.Value = mediaElement.Position.TotalSeconds;
+
+            _timer = new DispatcherTimer();
+            _timer.Interval = new TimeSpan(0, 0, 0, 1, 0);
+            _timer.Tick += _timer_Tick;
+
+            var bitmap = new BitmapImage();
+            bitmap.BeginInit();
+            bitmap.UriSource = new Uri(@"Images/pause.png", UriKind.Relative);
+            bitmap.EndInit();
+
+            PlayButtonIcon.Source = bitmap;
+
+            mediaElement.Play();
+            _timer.Start();
+
+            _mediaFilesInPlaylist[index].IsPlaying = true;
+            _isPlayed = true;
+        }
         #endregion
 
         #region btn
@@ -279,32 +307,12 @@ namespace MediaPlayer
                 }
                 else
                 {
+                    _mediaFilesInPlaylist[_playingVideoIndex].IsPlaying = false;
                     _playingVideoIndex++;
                 }
 
-                string fileName = _mediaFilesInPlaylist[_playingVideoIndex].FilePath;
+                playVideoInPlayList(_playingVideoIndex);
 
-                mediaElement.Source = new Uri(fileName, UriKind.Absolute);
-
-                double curPos = MediaFile.getCurrentTime(_mediaFilesInPlaylist[_playingVideoIndex].CurrentPlayedTime).TotalSeconds;
-                mediaElement.Position = TimeSpan.FromSeconds(curPos);
-                progressSlider.Value = mediaElement.Position.TotalSeconds;
-
-                _timer = new DispatcherTimer();
-                _timer.Interval = new TimeSpan(0, 0, 0, 1, 0);
-                _timer.Tick += _timer_Tick;
-
-                var bitmap = new BitmapImage();
-                bitmap.BeginInit();
-                bitmap.UriSource = new Uri(@"Images/pause.png", UriKind.Relative);
-                bitmap.EndInit();
-
-                PlayButtonIcon.Source = bitmap;
-
-                mediaElement.Play();
-                _timer.Start();
-
-                _isPlayed = true;
             }
         }
 
@@ -322,32 +330,12 @@ namespace MediaPlayer
                 }
                 else
                 {
+                    _mediaFilesInPlaylist[_playingVideoIndex].IsPlaying = false;
                     _playingVideoIndex--;
                 }
 
-                string fileName = _mediaFilesInPlaylist[_playingVideoIndex].FilePath;
 
-                mediaElement.Source = new Uri(fileName, UriKind.Absolute);
-
-                double curPos = MediaFile.getCurrentTime(_mediaFilesInPlaylist[_playingVideoIndex].CurrentPlayedTime).TotalSeconds;
-                mediaElement.Position = TimeSpan.FromSeconds(curPos);
-                progressSlider.Value = mediaElement.Position.TotalSeconds;
-
-                _timer = new DispatcherTimer();
-                _timer.Interval = new TimeSpan(0, 0, 0, 1, 0);
-                _timer.Tick += _timer_Tick;
-
-                var bitmap = new BitmapImage();
-                bitmap.BeginInit();
-                bitmap.UriSource = new Uri(@"Images/pause.png", UriKind.Relative);
-                bitmap.EndInit();
-
-                PlayButtonIcon.Source = bitmap;
-
-                mediaElement.Play();
-                _timer.Start();
-
-                _isPlayed = true;
+                playVideoInPlayList(_playingVideoIndex);
             }
         }
 
@@ -407,42 +395,21 @@ namespace MediaPlayer
         {
             string tag = (string)((Button)sender).Tag;
             int index = GetIndexFromName(tag);
-            if(index >= 0)
+            if (index >= 0)
             {
                 if (_isPlayed)
                 {
                     _timer.Stop();
+                    _mediaFilesInPlaylist[_playingVideoIndex].IsPlaying = false;
                 }
                 else
                 {
                     mediaElement.Play();
                 }
 
-                string fileName = _mediaFilesInPlaylist[index].FilePath;
-
-                mediaElement.Source = new Uri(fileName, UriKind.Absolute);
-
-                double curPos = MediaFile.getCurrentTime(_mediaFilesInPlaylist[index].CurrentPlayedTime).TotalSeconds;
-                mediaElement.Position = TimeSpan.FromSeconds(curPos);
-                progressSlider.Value = mediaElement.Position.TotalSeconds;
-
-                _timer = new DispatcherTimer();
-                _timer.Interval = new TimeSpan(0, 0, 0, 1, 0);
-                _timer.Tick += _timer_Tick;
-
-                var bitmap = new BitmapImage();
-                bitmap.BeginInit();
-                bitmap.UriSource = new Uri(@"Images/pause.png", UriKind.Relative);
-                bitmap.EndInit();
-
-                PlayButtonIcon.Source = bitmap;
+                playVideoInPlayList(index);
 
                 _playingVideoIndex = index;
-
-                mediaElement.Play();
-                _timer.Start();
-
-                _isPlayed = true;
             }
         }
 
@@ -479,7 +446,7 @@ namespace MediaPlayer
             txblockVolume.Text = $"{value}%";
         }
         #endregion
-         
+
         private void RemoveFileFromPlayList_Click(object sender, RoutedEventArgs e)
         {
             int index = playListView.SelectedIndex;
@@ -488,7 +455,7 @@ namespace MediaPlayer
             {
                 if (_isPlayed && index == _playingVideoIndex)
                 {
-                    if (_playingVideoIndex == _mediaFilesInPlaylist.Count - 1 && _playingVideoIndex == 0)
+                    if (_playingVideoIndex == _mediaFilesInPlaylist.Count - 1)
                     {
                         _timer.Stop();
                         txblockCurrentTime.Text = "00:00";
@@ -496,7 +463,8 @@ namespace MediaPlayer
                         txblockVolume.Text = "0%";
 
                         progressSlider.Value = 0;
-                        volumeSlider.Value = 0;
+
+                        _isPlayed = false;
 
                         mediaElement.Source = null;
                     }
@@ -504,6 +472,14 @@ namespace MediaPlayer
                     {
                         // Play next video
                         BtnNext_Click(sender, e);
+                        _playingVideoIndex--;
+                    }
+                }
+                else
+                {
+                    if (index < _playingVideoIndex)
+                    {
+                        _playingVideoIndex--;
                     }
                 }
                 _mediaFilesInPlaylist.RemoveAt(index);

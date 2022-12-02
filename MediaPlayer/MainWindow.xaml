@@ -6,11 +6,11 @@
         xmlns:local="clr-namespace:MediaPlayer"
         mc:Ignorable="d"
         Title="MediaPlayer" Height="450" Width="900" Loaded="Window_Loaded">
-    
+
     <Window.Resources>
         <ResourceDictionary Source="CustomSliderAndButtonDictionary.xaml"/>
     </Window.Resources>
-    
+
     <DockPanel>
         <StackPanel DockPanel.Dock="Top">
             <Menu Background="#555" Foreground="White" Cursor="Hand" FontSize="15">
@@ -159,6 +159,14 @@
                     <ListView.ItemContainerStyle>
                         <Style TargetType="ListViewItem">
                             <Setter Property="ContextMenu" Value="{StaticResource listViewContextMenu}"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Path=IsPlaying}" Value="True">
+                                    <Setter Property="Background" Value="Red" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Path=IsPlaying}" Value="false">
+                                <Setter Property="Background" Value="Transparent"/>
+                                </DataTrigger>
+                            </Style.Triggers>
                         </Style>
                     </ListView.ItemContainerStyle>
                     <ListView.ItemsPanel>
@@ -177,6 +185,7 @@
                                 </TextBlock>
                             </StackPanel>
                         </DataTemplate>
+
                     </ListView.ItemTemplate>
                 </ListView>
             </DockPanel>
