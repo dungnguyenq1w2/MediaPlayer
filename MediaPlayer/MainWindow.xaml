@@ -94,9 +94,20 @@
 
             <StatusBarItem Grid.Column="1" HorizontalContentAlignment="Stretch">
                 <Slider x:Name="progressSlider"
-                            IsMoveToPointEnabled="True" ValueChanged="progressSlider_ValueChanged"/>
+                        IsMoveToPointEnabled="True" 
+                        ValueChanged="progressSlider_ValueChanged" 
+                        Thumb.DragStarted="progressSlider_DragStarted"
+                        Thumb.DragCompleted="progressSlider_DragCompleted"
+                        AutoToolTipPlacement="TopLeft"
+                        MouseMove="progressSlider_MouseMove"
+                        MouseLeave="progressSlider_MouseLeave"
+                        />
             </StatusBarItem>
-
+            <Popup Name="Tedavi_Popup" IsOpen="False" Placement="Relative" HorizontalOffset="0" VerticalOffset="0" PlacementTarget="{Binding ElementName=progressSlider}">
+                <Border BorderBrush="Gray" BorderThickness="1" >
+                    <MediaElement Height="90" Width="160" x:Name="mediaElementPreview" LoadedBehavior="Manual" ScrubbingEnabled="True"/>
+                </Border>
+            </Popup>
             <StatusBarItem Grid.Column="2">
                 <Button x:Name="MuteButton" Click="MuteButton_Click">
                     <Image x:Name="MuteButtonIcon" Source="Images/volume.png" Height="17" Width="26"/>
@@ -164,7 +175,7 @@
                                     <Setter Property="Background" Value="Red" />
                                 </DataTrigger>
                                 <DataTrigger Binding="{Binding Path=IsPlaying}" Value="false">
-                                <Setter Property="Background" Value="Transparent"/>
+                                    <Setter Property="Background" Value="Transparent"/>
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>

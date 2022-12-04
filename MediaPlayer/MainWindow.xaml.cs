@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Numerics;
@@ -241,6 +242,9 @@ namespace MediaPlayer
 
             _mediaFilesInPlaylist[index].IsPlaying = true;
             _isPlayed = true;
+
+            mediaElementPreview.Source = new Uri(fileName, UriKind.Absolute);
+            mediaElementPreview.Stop();
         }
         #endregion
 
@@ -439,11 +443,37 @@ namespace MediaPlayer
             mediaElement.Volume = (double)volumeSlider.Value;
         }
 
+        private void progressSlider_DragStarted(object sender, System.Windows.Controls.Primitives.DragStartedEventArgs e)
+        {
+            mediaElement.Stop();
+        }
+
+        private void progressSlider_DragCompleted(object sender, System.Windows.Controls.Primitives.DragCompletedEventArgs e)
+        {
+            mediaElement.Play();
+        }
         private void volumeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             mediaElement.Volume = (double)volumeSlider.Value;
             var value = Math.Round((double)volumeSlider.Value * 100, MidpointRounding.ToEven);
             txblockVolume.Text = $"{value}%";
+        }
+        private void progressSlider_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (!this.Tedavi_Popup.IsOpen)
+                this.Tedavi_Popup.IsOpen = true;
+
+            var mousePosition = e.GetPosition(this.progressSlider);
+            this.Tedavi_Popup.HorizontalOffset = mousePosition.X - 70;
+            this.Tedavi_Popup.VerticalOffset = -110;
+            double progressValue = progressSlider.Maximum * (mousePosition.X / progressSlider.ActualWidth);
+            TimeSpan newPosition = TimeSpan.FromSeconds(progressValue);
+            mediaElementPreview.Position = newPosition;
+        }
+
+        private void progressSlider_MouseLeave(object sender, MouseEventArgs e)
+        {
+            this.Tedavi_Popup.IsOpen = false;
         }
         #endregion
 
@@ -497,5 +527,7 @@ namespace MediaPlayer
 
             playListView.ItemsSource = _mediaFilesInPlaylist;
         }
+
+        
     }
 }
