@@ -10,6 +10,7 @@
   <ItemGroup>
     <None Remove="Images\add.png" />
     <None Remove="Images\close.png" />
+    <None Remove="Images\Disk.gif" />
     <None Remove="Images\document.png" />
     <None Remove="Images\mute-volume-control.png" />
     <None Remove="Images\Next.png" />
@@ -29,11 +30,13 @@
 
   <ItemGroup>
     <PackageReference Include="PropertyChanged.Fody" Version="4.1.0" />
+    <PackageReference Include="WpfAnimatedGif" Version="2.0.2" />
   </ItemGroup>
 
   <ItemGroup>
     <Resource Include="Images\add.png" />
     <Resource Include="Images\close.png" />
+    <Resource Include="Images\Disk.gif" />
     <Resource Include="Images\document.png" />
     <Resource Include="Images\playlist.png" />
     <Resource Include="Images\save-button.png" />
