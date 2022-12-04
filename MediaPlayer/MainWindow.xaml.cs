@@ -34,11 +34,11 @@ namespace MediaPlayer
         public event PropertyChangedEventHandler? PropertyChanged;
 
         #region local attribute
-        private bool _isMuted = false;
+        private bool _isMuted = false; 
         private bool _isPlayed = false;
         private bool _shuffle = false;
         private int _playingVideoIndex = -1;
-
+        private bool _isOpen = false; //
         private const string audioExtension = "All Media Files|*.mp4;*.mp3";
         private BindingList<MediaFile> _mediaFilesInPlaylist = new BindingList<MediaFile>();
         private BindingList<MediaFile> _recentlyPlayedFiles = new BindingList<MediaFile>();
@@ -153,20 +153,36 @@ namespace MediaPlayer
         }
         private void OpenMediaFile_Click(object sender, RoutedEventArgs e)
         {
-            var screen = new OpenFileDialog();
+            var screen = new Microsoft.Win32.OpenFileDialog
+            {
+                Filter = audioExtension, // Dùng để thêm nhiều loại file vào 
+            };
             if (screen.ShowDialog() == true)
             {
                 string fileName = screen.FileName;
-                mediaElement.Source = new Uri(fileName, UriKind.Absolute);
+                if (Is_Mp3(fileName))
+                {
+                    GifMp3.Visibility = Visibility.Visible;
+                    mediaElement.ScrubbingEnabled = false;
+                }
+                else
+                {
+                    GifMp3.Visibility = Visibility.Hidden;
+                    mediaElement.ScrubbingEnabled = true;
+                    mediaElementPreview.Source = new Uri(fileName, UriKind.Absolute);
+                    mediaElementPreview.Stop();
+                }
 
-                mediaElement.Stop();
+                _isPlayed = true;
+                mediaElement.Source = new Uri(fileName, UriKind.Absolute);
+                mediaElement.Play();
 
                 _timer = new DispatcherTimer();
                 _timer.Interval = new TimeSpan(0, 0, 0, 1, 0); ;
                 _timer.Tick += _timer_Tick;
 
-                mediaElementPreview.Source = new Uri(fileName, UriKind.Absolute);
-                mediaElementPreview.Stop();
+                _timer.Start();
+
             }
         }
 
@@ -200,8 +216,9 @@ namespace MediaPlayer
             // Tự động chơi tập tin kế tiếp khi có play shuffle 
             if (_shuffle && _mediaFilesInPlaylist.Count() > 0)
             {
+                GifMp3.Visibility = Visibility.Hidden;
                 Random random = new Random();
-                
+
                 int index = random.Next(0, _mediaFilesInPlaylist.Count());
                 if (_mediaFilesInPlaylist.Count() > 1)
                     while (index == _playingVideoIndex)
@@ -213,6 +230,18 @@ namespace MediaPlayer
                 if (_playingVideoIndex != index && _playingVideoIndex != -1)
                     _mediaFilesInPlaylist[_playingVideoIndex].IsPlaying = false; // Xóa highlight của video đang chạy
                 _playingVideoIndex = index; // gán lại giá trị đang chạy
+                if(Is_Mp3(_mediaFilesInPlaylist[index].FilePath))
+                    GifMp3.Visibility = Visibility.Visible;
+                else 
+                    GifMp3.Visibility = Visibility.Hidden;
+
+
+                //progressSlider.Value = 0;
+
+                double curPos = MediaFile.getCurrentTime(_mediaFilesInPlaylist[index].CurrentPlayedTime).TotalSeconds;
+                mediaElement.Position = TimeSpan.FromSeconds(curPos);
+                progressSlider.Value = mediaElement.Position.TotalSeconds;
+
                 mediaElement.Play();
             }
 
@@ -242,9 +271,24 @@ namespace MediaPlayer
             return playlist;
         }
 
+        private bool Is_Mp3(string path)
+        {
+            return System.IO.Path.GetExtension(path).Equals(".mp3");
+        }
         private void playVideoInPlayList(int index)
         {
             string fileName = _mediaFilesInPlaylist[index].FilePath;
+
+            if (Is_Mp3(fileName))
+            {
+                GifMp3.Visibility = Visibility.Visible;
+                mediaElement.ScrubbingEnabled = false;
+            }
+            else
+            {
+                GifMp3.Visibility = Visibility.Hidden;
+                mediaElement.ScrubbingEnabled = true;
+            }
 
             mediaElement.Source = new Uri(fileName, UriKind.Absolute);
 
@@ -338,6 +382,7 @@ namespace MediaPlayer
                 else
                 {
                     _mediaFilesInPlaylist[_playingVideoIndex].IsPlaying = false;
+                    GifMp3.Visibility = Visibility.Hidden;
                     _playingVideoIndex++;
                 }
 
@@ -361,6 +406,7 @@ namespace MediaPlayer
                 else
                 {
                     _mediaFilesInPlaylist[_playingVideoIndex].IsPlaying = false;
+                    GifMp3.Visibility = Visibility.Hidden;
                     _playingVideoIndex--;
                 }
 
@@ -385,18 +431,31 @@ namespace MediaPlayer
 
                 if (progressSlider.Value == progressSlider.Maximum)
                 {
+                    GifMp3.Visibility = Visibility.Hidden;
                     Random random = new Random();
                     int index = random.Next(0, _mediaFilesInPlaylist.Count());
-                    if(_mediaFilesInPlaylist.Count() > 1)
+                    if (_mediaFilesInPlaylist.Count() > 1)
                         while (index == _playingVideoIndex)
                             index = random.Next(0, _mediaFilesInPlaylist.Count());
-                        
+
                     mediaElement.Source = new Uri(_mediaFilesInPlaylist[index].FilePath, UriKind.Absolute);
 
                     _mediaFilesInPlaylist[index].IsPlaying = true;
                     if (_playingVideoIndex != index && _playingVideoIndex != -1)
                         _mediaFilesInPlaylist[_playingVideoIndex].IsPlaying = false; // Xóa highlight của video đang chạy
                     _playingVideoIndex = index; // gán lại giá trị đang chạy
+
+
+                    if (Is_Mp3(_mediaFilesInPlaylist[index].FilePath))
+                        GifMp3.Visibility = Visibility.Visible;
+                    else
+                        GifMp3.Visibility = Visibility.Hidden;
+
+                    //progressSlider.Value = 0;
+                    double curPos = MediaFile.getCurrentTime(_mediaFilesInPlaylist[index].CurrentPlayedTime).TotalSeconds;
+                    mediaElement.Position = TimeSpan.FromSeconds(curPos);
+                    progressSlider.Value = mediaElement.Position.TotalSeconds;
+
                     mediaElement.Play();
                 }
             }
@@ -452,6 +511,11 @@ namespace MediaPlayer
             int index = GetIndexFromName(tag);
             if (index >= 0)
             {
+                if (Is_Mp3(_mediaFilesInPlaylist[index].FilePath))
+                    GifMp3.Visibility = Visibility.Visible;
+                else
+                    GifMp3.Visibility = Visibility.Hidden;
+
                 if (_isPlayed)
                 {
                     _timer.Stop();
@@ -493,7 +557,7 @@ namespace MediaPlayer
             mediaElement.Position = newPosition;
             mediaElement.Volume = (double)volumeSlider.Value;
 
-            if(progressSlider.Value != progressSlider.Maximum)
+            if (progressSlider.Value != progressSlider.Maximum && _isPlayed)
             {
                 var bitmap = new BitmapImage();
                 bitmap.BeginInit();
@@ -556,7 +620,7 @@ namespace MediaPlayer
                         progressSlider.Value = 0;
 
                         _isPlayed = false;
-
+                        GifMp3.Visibility = Visibility.Hidden;
                         mediaElement.Source = null;
                     }
                     else
@@ -589,6 +653,6 @@ namespace MediaPlayer
             playListView.ItemsSource = _mediaFilesInPlaylist;
         }
 
-        
+
     }
 }
