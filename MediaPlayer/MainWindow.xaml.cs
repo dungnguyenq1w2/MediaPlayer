@@ -33,23 +33,24 @@ namespace MediaPlayer
     {
         public event PropertyChangedEventHandler? PropertyChanged;
 
+        #region local attribute
         private bool _isMuted = false;
         private bool _isPlayed = false;
+        private bool _shuffle = false;
         private int _playingVideoIndex = -1;
+
+        private const string audioExtension = "All Media Files|*.mp4;*.mp3";
+        private BindingList<MediaFile> _mediaFilesInPlaylist = new BindingList<MediaFile>();
+        private BindingList<MediaFile> _recentlyPlayedFiles = new BindingList<MediaFile>();
+        private DispatcherTimer _timer;
+        public string Keyword { get; set; } // search playlist
+        public string SearchWord { get; set; } // search recent file
+        #endregion
 
         public MainWindow()
         {
             InitializeComponent();
         }
-
-        //ObservableCollection<MediaFile> _mediaFilesInPlaylist = new ObservableCollection<MediaFile>();
-
-        private BindingList<MediaFile> _mediaFilesInPlaylist = new BindingList<MediaFile>();
-
-        private BindingList<MediaFile> _recentlyPlayedFiles = new BindingList<MediaFile>();
-
-        private DispatcherTimer _timer;
-
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             string filename = "playlist.txt";
@@ -70,10 +71,6 @@ namespace MediaPlayer
                 playListView.ItemsSource = _mediaFilesInPlaylist;
             }
         }
-
-        public string Keyword { get; set; } // search playlist
-
-        public string SearchWord { get; set; } // search recent file
 
         private void keywordTextBox_TextChanged(object sender, TextChangedEventArgs e) // text change playlist
         {
@@ -119,7 +116,7 @@ namespace MediaPlayer
         {
             var screen = new Microsoft.Win32.OpenFileDialog
             {
-                //Filter = audioExtension, :  Dùng để thêm nhiều loại file vào 
+                Filter = audioExtension, // Dùng để thêm nhiều loại file vào 
                 Multiselect = true
             };
             if (screen.ShowDialog() == true)
@@ -139,16 +136,15 @@ namespace MediaPlayer
                         if (file == null)
                         {
                             _mediaFilesInPlaylist.Add(mediaFile);
-
                         }
                         else
                         {
-                            MessageBox.Show("File da ton tai");
+                            MessageBox.Show("File đã tồn tại");
                         }
                     }
                     catch (Exception ex)
                     {
-                        System.Windows.MessageBox.Show($"Cannot play that file - {ex} ");
+                        System.Windows.MessageBox.Show($"Không có hỗ trợ file - {ex} ");
                         continue;
                     }
                 }
@@ -168,6 +164,9 @@ namespace MediaPlayer
                 _timer = new DispatcherTimer();
                 _timer.Interval = new TimeSpan(0, 0, 0, 1, 0); ;
                 _timer.Tick += _timer_Tick;
+
+                mediaElementPreview.Source = new Uri(fileName, UriKind.Absolute);
+                mediaElementPreview.Stop();
             }
         }
 
@@ -198,7 +197,34 @@ namespace MediaPlayer
 
         private void player_MediaEnded(object sender, RoutedEventArgs e)
         {
-            // Tự động chơi tập tin kế tiếp ở đây
+            // Tự động chơi tập tin kế tiếp khi có play shuffle 
+            if (_shuffle && _mediaFilesInPlaylist.Count() > 0)
+            {
+                Random random = new Random();
+                
+                int index = random.Next(0, _mediaFilesInPlaylist.Count());
+                if (_mediaFilesInPlaylist.Count() > 1)
+                    while (index == _playingVideoIndex)
+                        index = random.Next(0, _mediaFilesInPlaylist.Count());
+
+                mediaElement.Source = new Uri(_mediaFilesInPlaylist[index].FilePath, UriKind.Absolute);
+
+                _mediaFilesInPlaylist[index].IsPlaying = true;
+                if (_playingVideoIndex != index && _playingVideoIndex != -1)
+                    _mediaFilesInPlaylist[_playingVideoIndex].IsPlaying = false; // Xóa highlight của video đang chạy
+                _playingVideoIndex = index; // gán lại giá trị đang chạy
+                mediaElement.Play();
+            }
+
+            if (!_shuffle)
+            {
+                var bitmap = new BitmapImage();
+                bitmap.BeginInit();
+                bitmap.UriSource = new Uri(@"Images/play-button-arrowhead.png", UriKind.Relative);
+                bitmap.EndInit();
+
+                PlayButtonIcon.Source = bitmap;
+            }
         }
 
         #region Helper
@@ -345,9 +371,34 @@ namespace MediaPlayer
 
         private void BtnShuffle_Click(object sender, RoutedEventArgs e)
         {
-            if (mediaElement.Source != null)
+            if (mediaElement.Source != null && _mediaFilesInPlaylist.Count() > 0)
             {
+                var bitmap = new BitmapImage();
+                bitmap.BeginInit();
+                if (_shuffle)
+                    bitmap.UriSource = new Uri(@"Images/shuffle-button.png", UriKind.Relative);
+                else
+                    bitmap.UriSource = new Uri(@"Images/shuffle-click.png", UriKind.Relative);
+                _shuffle = !_shuffle;
+                bitmap.EndInit();
+                ShuffleIcon.Source = bitmap;
 
+                if (progressSlider.Value == progressSlider.Maximum)
+                {
+                    Random random = new Random();
+                    int index = random.Next(0, _mediaFilesInPlaylist.Count());
+                    if(_mediaFilesInPlaylist.Count() > 1)
+                        while (index == _playingVideoIndex)
+                            index = random.Next(0, _mediaFilesInPlaylist.Count());
+                        
+                    mediaElement.Source = new Uri(_mediaFilesInPlaylist[index].FilePath, UriKind.Absolute);
+
+                    _mediaFilesInPlaylist[index].IsPlaying = true;
+                    if (_playingVideoIndex != index && _playingVideoIndex != -1)
+                        _mediaFilesInPlaylist[_playingVideoIndex].IsPlaying = false; // Xóa highlight của video đang chạy
+                    _playingVideoIndex = index; // gán lại giá trị đang chạy
+                    mediaElement.Play();
+                }
             }
         }
 
@@ -441,6 +492,16 @@ namespace MediaPlayer
             TimeSpan newPosition = TimeSpan.FromSeconds(value);
             mediaElement.Position = newPosition;
             mediaElement.Volume = (double)volumeSlider.Value;
+
+            if(progressSlider.Value != progressSlider.Maximum)
+            {
+                var bitmap = new BitmapImage();
+                bitmap.BeginInit();
+                bitmap.UriSource = new Uri(@"Images/pause.png", UriKind.Relative);
+                bitmap.EndInit();
+
+                PlayButtonIcon.Source = bitmap;
+            }
         }
 
         private void progressSlider_DragStarted(object sender, System.Windows.Controls.Primitives.DragStartedEventArgs e)

@@ -63,7 +63,7 @@
                     <Image Source="Images/Next.png" Height="23"/>
                 </Button>
                 <Button Name="BtnShuffle" Click="BtnShuffle_Click">
-                    <Image Source="Images/shuffle-button.png" Height="21"/>
+                    <Image x:Name="ShuffleIcon" Source="Images/shuffle-button.png" Height="21"/>
                 </Button>
             </StackPanel>
         </StackPanel>
