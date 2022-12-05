@@ -38,7 +38,7 @@ namespace MediaPlayer
         private bool _isPlayed = false;
         private bool _shuffle = false;
         private int _playingVideoIndex = -1;
-        private int _videoSpeed = 1;
+        private double _videoSpeed = 1;
         private const string audioExtension = "All Media Files|*.mp4;*.mp3";
         private BindingList<MediaFile> _mediaFilesInPlaylist = new BindingList<MediaFile>();
         private BindingList<MediaFile> _recentlyPlayedFiles = new BindingList<MediaFile>();
@@ -578,6 +578,29 @@ namespace MediaPlayer
             }
         }
 
+        private void SpeedUp_Click(object sender, RoutedEventArgs e)
+        {
+            _videoSpeed = 10;
+            mediaElement.SpeedRatio = _videoSpeed;
+        }
+
+        private void NormalSpeed_Click(object sender, RoutedEventArgs e)
+        {
+            _videoSpeed = 1;
+            mediaElement.SpeedRatio = _videoSpeed;
+        }
+
+        private void SlowDown_Click(object sender, RoutedEventArgs e)
+        {
+            _videoSpeed = 0.1;
+            mediaElement.SpeedRatio = _videoSpeed;
+        }
+
+        private void BtnRepeat_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
         private void BtnClosePlaylist_Click(object sender, RoutedEventArgs e)
         {
             if (mediaGrid.ColumnDefinitions[1].Width != new GridLength(0))
@@ -685,26 +708,6 @@ namespace MediaPlayer
                 }
                 _mediaFilesInPlaylist.RemoveAt(index);
             }
-        }
-
-        private void SpeedUp_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void NormalSpeed_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void SlowDown_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void BtnRepeat_Click(object sender, RoutedEventArgs e)
-        {
-
         }
     }
 }
