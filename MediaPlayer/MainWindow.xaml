@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:MediaPlayer"
         xmlns:gif="http://wpfanimatedgif.codeplex.com"
         mc:Ignorable="d"
-        Title="MediaPlayer" Height="450" Width="900" Loaded="Window_Loaded">
+        Title="MediaPlayer" Height="450" Width="900" Loaded="Window_Loaded" Closed="Window_Closed">
 
     <Window.Resources>
         <ResourceDictionary Source="CustomSliderAndButtonDictionary.xaml"/>
@@ -35,29 +35,12 @@
                     </MenuItem>
                     <MenuItem Header="Add files to Playlist" Foreground="Black" Click="AddFilesPlaylist_Click">
                         <MenuItem.Icon>
-                            <Image Source="/Images/add-playlist.png"/>
+                            <Image Source="/Images/add.png"/>
                         </MenuItem.Icon>
                     </MenuItem>
                     <MenuItem Header="Save Playlist" Foreground="Black">
                         <MenuItem.Icon>
                             <Image Source="/Images/save-button.png"/>
-                        </MenuItem.Icon>
-                    </MenuItem>
-                </MenuItem>
-                <MenuItem Header="Video">
-                    <MenuItem Header="Speed up" Foreground="Black" Click="SpeedUp_Click">
-                        <MenuItem.Icon>
-                            <Image Source="/Images/arrow-up.png"/>
-                        </MenuItem.Icon>
-                    </MenuItem>
-                    <MenuItem Header="Normal speed" Foreground="Black" Click="NormalSpeed_Click">
-                        <MenuItem.Icon>
-                            <Image Source="/Images/arrow-normal.png"/>
-                        </MenuItem.Icon>
-                    </MenuItem>
-                    <MenuItem Header="Slow down" Foreground="Black" Click="SlowDown_Click">
-                        <MenuItem.Icon>
-                            <Image Source="/Images/arrow-down.png"/>
                         </MenuItem.Icon>
                     </MenuItem>
                 </MenuItem>
@@ -73,6 +56,7 @@
                 <Button Padding="5" Focusable="False" Click="BtnPlay_Click">
                     <Image x:Name="PlayButtonIcon" Source="Images/play-button-arrowhead.png" Height="11"/>
                 </Button>
+
                 <Button Padding="5" Focusable="False" Click="BtnStop_Click">
                     <Image Source="Images/stop.png" Height="11"/>
                 </Button>
@@ -81,9 +65,6 @@
                 </Button>
                 <Button Name="BtnShuffle" Click="BtnShuffle_Click">
                     <Image x:Name="ShuffleIcon" Source="Images/shuffle-button.png" Height="21"/>
-                </Button>
-                <Button Name="BtnRepeat" Click="BtnRepeat_Click">
-                    <Image x:Name="RepeatIcon" Source="Images/repeat-button.png" Height="20"/>
                 </Button>
             </StackPanel>
         </StackPanel>

@@ -37,7 +37,15 @@ namespace MediaPlayer
         }
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-
+            // Load last size and position of screen
+            this.Top = Properties.Settings.Default.Top;
+            this.Left = Properties.Settings.Default.Left;
+            this.Height = Properties.Settings.Default.Height;
+            this.Width = Properties.Settings.Default.Width;
+            if (Properties.Settings.Default.Maximized)
+            {
+                WindowState = WindowState.Maximized;
+            }
 
             string filename = "playlist.txt";
             string recentPlayed = "recentPlayedFiles.txt";
@@ -48,7 +56,11 @@ namespace MediaPlayer
             playListView.ItemsSource = _mediaFilesInPlaylist;
             DataContext = this;
 
-
+            if (Properties.Settings.Default.PlayingVideoIndex != -1)
+            {
+                _playingVideoIndex = Properties.Settings.Default.PlayingVideoIndex;
+                playVideoInPlayList(_playingVideoIndex);
+            }
         }
 
         private void ViewPlaylist_Click(object sender, RoutedEventArgs e)
@@ -702,6 +714,28 @@ namespace MediaPlayer
             }
         }
 
-       
+        private void Window_Closed(object sender, EventArgs e)
+        {
+            // Save window state
+            if (WindowState == WindowState.Maximized)
+            {
+                // Use the RestoreBounds as the current values will be 0, 0 and the size of the screen
+                Properties.Settings.Default.Top = RestoreBounds.Top;
+                Properties.Settings.Default.Left = RestoreBounds.Left;
+                Properties.Settings.Default.Height = RestoreBounds.Height;
+                Properties.Settings.Default.Width = RestoreBounds.Width;
+                Properties.Settings.Default.Maximized = true;
+            }
+            else
+            {
+                Properties.Settings.Default.Top = this.Top;
+                Properties.Settings.Default.Left = this.Left;
+                Properties.Settings.Default.Height = this.Height;
+                Properties.Settings.Default.Width = this.Width;
+                Properties.Settings.Default.Maximized = false;
+            }
+            Properties.Settings.Default.PlayingVideoIndex = _playingVideoIndex;
+            Properties.Settings.Default.Save();
+        }
     }
 }
