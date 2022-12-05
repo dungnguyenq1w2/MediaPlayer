@@ -592,7 +592,7 @@ namespace MediaPlayer
 
         private void SpeedUp_Click(object sender, RoutedEventArgs e)
         {
-            _videoSpeed = 10;
+            _videoSpeed = 4;
             mediaElement.SpeedRatio = _videoSpeed;
         }
 
@@ -604,7 +604,7 @@ namespace MediaPlayer
 
         private void SlowDown_Click(object sender, RoutedEventArgs e)
         {
-            _videoSpeed = 0.1;
+            _videoSpeed = 0.5;
             mediaElement.SpeedRatio = _videoSpeed;
         }
 
