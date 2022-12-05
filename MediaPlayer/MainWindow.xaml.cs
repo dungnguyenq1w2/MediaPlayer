@@ -38,6 +38,7 @@ namespace MediaPlayer
         private bool _isPlayed = false;
         private bool _shuffle = false;
         private int _playingVideoIndex = -1;
+        private int _videoSpeed = 1;
         private const string audioExtension = "All Media Files|*.mp4;*.mp3";
         private BindingList<MediaFile> _mediaFilesInPlaylist = new BindingList<MediaFile>();
         private BindingList<MediaFile> _recentlyPlayedFiles = new BindingList<MediaFile>();
@@ -176,7 +177,7 @@ namespace MediaPlayer
                 _isPlayed = true;
                 mediaElement.Source = new Uri(fileName, UriKind.Absolute);
                 mediaElement.Play();
-
+                mediaElement.SpeedRatio = _videoSpeed;
                 _timer = new DispatcherTimer();
                 _timer.Interval = new TimeSpan(0, 0, 0, 1, 0); ;
                 _timer.Tick += _timer_Tick;
@@ -330,6 +331,8 @@ namespace MediaPlayer
             _timer = new DispatcherTimer();
             _timer.Interval = new TimeSpan(0, 0, 0, 1, 0);
             _timer.Tick += _timer_Tick;
+
+            mediaElement.SpeedRatio = _videoSpeed;
 
             var bitmap = new BitmapImage();
             bitmap.BeginInit();
@@ -682,6 +685,26 @@ namespace MediaPlayer
                 }
                 _mediaFilesInPlaylist.RemoveAt(index);
             }
+        }
+
+        private void SpeedUp_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void NormalSpeed_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void SlowDown_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void BtnRepeat_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

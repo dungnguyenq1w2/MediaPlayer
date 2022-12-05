@@ -8,7 +8,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Images\add-playlist.png" />
     <None Remove="Images\add.png" />
+    <None Remove="Images\arrow-down.png" />
+    <None Remove="Images\arrow-normal.png" />
+    <None Remove="Images\arrow-up.png" />
     <None Remove="Images\close.png" />
     <None Remove="Images\Disk.gif" />
     <None Remove="Images\document.png" />
@@ -20,6 +24,8 @@
     <None Remove="Images\playlist.png" />
     <None Remove="Images\Previous.png" />
     <None Remove="Images\remove.png" />
+    <None Remove="Images\repeat-button.png" />
+    <None Remove="Images\repeat-click.png" />
     <None Remove="Images\save-button.png" />
     <None Remove="Images\shuffle-button.png" />
     <None Remove="Images\shuffle-click.png" />
@@ -34,11 +40,17 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="Images\add-playlist.png" />
     <Resource Include="Images\add.png" />
+    <Resource Include="Images\arrow-down.png" />
+    <Resource Include="Images\arrow-normal.png" />
+    <Resource Include="Images\arrow-up.png" />
     <Resource Include="Images\close.png" />
     <Resource Include="Images\Disk.gif" />
     <Resource Include="Images\document.png" />
     <Resource Include="Images\playlist.png" />
+    <Resource Include="Images\repeat-button.png" />
+    <Resource Include="Images\repeat-click.png" />
     <Resource Include="Images\save-button.png" />
     <Resource Include="Images\mute-volume-control.png" />
     <Resource Include="Images\Next.png" />
