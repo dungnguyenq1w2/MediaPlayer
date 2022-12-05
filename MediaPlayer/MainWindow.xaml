@@ -67,7 +67,7 @@
         <Grid DockPanel.Dock="Bottom" HorizontalAlignment="Stretch" Background="#333" >
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="40"/>
+                <ColumnDefinition Width="100"/>
             </Grid.ColumnDefinitions>
             <StackPanel Grid.Column="0" Orientation="Horizontal" Background="#333" HorizontalAlignment="Center">
                 <Button Name="BtnPrevious" Click="BtnPrevious_Click">
@@ -83,16 +83,21 @@
                 <Button Name="BtnNext" Click="BtnNext_Click">
                     <Image Source="Images/Next.png" Height="23"/>
                 </Button>
-                <Button Name="BtnShuffle" Click="BtnShuffle_Click">
+               
+            </StackPanel>
+
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Background="#333" HorizontalAlignment="Center">
+                <Button Padding="5" Name="BtnShuffle" Click="BtnShuffle_Click">
                     <Image x:Name="ShuffleIcon" Source="Images/shuffle-button.png" Height="20"/>
                 </Button>
-                <Button Name="BtnRepeat" Click="BtnRepeat_Click">
+                <Button Padding="5"  Name="BtnRepeat" Click="BtnRepeat_Click">
                     <Image x:Name="RepeatIcon" Source="Images/repeat-button.png" Height="20"/>
                 </Button>
+                <Button Padding="5" Name="BtnFullscreen" Click="BtnFullscreen_Click">
+                    <Image x:Name="FullscreenIcon" Source="Images/fullscreen-out.png" Height="18"/>
+                </Button>
             </StackPanel>
-            <Button Grid.Column="1" Name="BtnFullscreen" Click="BtnFullscreen_Click">
-                <Image x:Name="FullscreenIcon" Source="Images/fullscreen-out.png" Height="18"/>
-            </Button>
+
         </Grid>
         <StatusBar Background="#555" DockPanel.Dock="Bottom">
             <StatusBar.ItemsPanel>
@@ -165,10 +170,11 @@
             <MediaElement Grid.Column="0" x:Name="mediaElement" LoadedBehavior="Manual" MediaOpened="player_MediaOpened" MediaEnded="player_MediaEnded" ScrubbingEnabled="True"/>
 
             <Image x:Name="GifMp3" gif:ImageBehavior.AnimatedSource="Images/Disk.gif" Visibility="Hidden"/>
+            <Image x:Name="PauseMp3" Source="Images/pauseMp3.png" Visibility="Hidden"/>
             <GridSplitter Width="2" Background="#444"/>
 
             <DockPanel Grid.Column="1">
-                <TextBox x:Name="keywordTextBox" Text="{Binding Keyword, UpdateSourceTrigger=PropertyChanged}" TextChanged="keywordTextBox_TextChanged" DockPanel.Dock="Top">
+                <TextBox x:Name="keywordTextBox" Text="{Binding Keyword, UpdateSourceTrigger=PropertyChanged}" TextChanged="KeywordTextBox_TextChanged" DockPanel.Dock="Top">
                 </TextBox>
                 <DockPanel DockPanel.Dock="Top" HorizontalAlignment="Stretch">
                     <Image Source="Images/playlist.png" Height="20" Margin="5"/>
@@ -225,7 +231,7 @@
             </DockPanel>
 
             <DockPanel Grid.Column="2">
-                <TextBox x:Name="searchTextBox" Text="{Binding SearchWord, UpdateSourceTrigger=PropertyChanged}" TextChanged="searchTextBox_TextChanged" DockPanel.Dock="Top">
+                <TextBox x:Name="searchTextBox" Text="{Binding SearchWord, UpdateSourceTrigger=PropertyChanged}" TextChanged="SearchTextBox_TextChanged" DockPanel.Dock="Top">
                 </TextBox>
                 <DockPanel DockPanel.Dock="Top" HorizontalAlignment="Stretch">
                     <Image Source="Images/playlist.png" Height="20" Margin="5"/>
