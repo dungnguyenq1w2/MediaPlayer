@@ -1,3 +1,0 @@
-﻿demo.mp4|0:0:0|0:0:0|D:\demo.mp4
-demo2.mp4|0:0:0|0:0:0|D:\demo2.mp4
-demoNhac.mp3|0:0:0|0:0:0|D:\demoNhac.mp3
