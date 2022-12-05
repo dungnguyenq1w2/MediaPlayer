@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -24,6 +25,9 @@ namespace MediaPlayer
         private bool _shuffle = false;
         private int _playingVideoIndex = -1;
         private double _videoSpeed = 1;
+
+        private bool fullscreen = false;
+        private DispatcherTimer DoubleClickTimer = new DispatcherTimer();
         private const string audioExtension = "All Media Files|*.mp4;*.mp3";
         private BindingList<MediaFile> _mediaFilesInPlaylist = new BindingList<MediaFile>();
         private BindingList<MediaFile> _recentlyPlayedFiles = new BindingList<MediaFile>();
@@ -39,14 +43,18 @@ namespace MediaPlayer
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             // Load last size and position of screen
-            this.Top = Properties.Settings.Default.Top;
-            this.Left = Properties.Settings.Default.Left;
-            this.Height = Properties.Settings.Default.Height;
-            this.Width = Properties.Settings.Default.Width;
             if (Properties.Settings.Default.Maximized)
             {
                 WindowState = WindowState.Maximized;
             }
+            else
+            {
+                this.Top = Properties.Settings.Default.Top;
+                this.Left = Properties.Settings.Default.Left;
+                this.Height = Properties.Settings.Default.Height;
+                this.Width = Properties.Settings.Default.Width;
+            }
+
 
             string filename = "playlist.txt";
             string recentPlayed = "recentPlayedFiles.txt";
@@ -604,7 +612,37 @@ namespace MediaPlayer
         {
 
         }
+        private void BtnFullscreen_Click(object sender, RoutedEventArgs e)
+        {
+            if (!fullscreen)
+            {
+                this.WindowStyle = WindowStyle.None;
+                this.WindowState = WindowState.Maximized;
+                topMenu.Height = 0;
+                mediaGrid.ColumnDefinitions[1].Width = new GridLength(0);
+                var bitmap = new BitmapImage();
+                bitmap.BeginInit();
+                bitmap.UriSource = new Uri(@"Images/fullscreen-in.png", UriKind.Relative);
+                bitmap.EndInit();
 
+                FullscreenIcon.Source = bitmap;
+            }
+            else
+            {
+                this.WindowStyle = WindowStyle.SingleBorderWindow;
+                this.WindowState = WindowState.Normal;
+                topMenu.Height = 22;
+                mediaGrid.ColumnDefinitions[1].Width = new GridLength(184, GridUnitType.Star);
+                var bitmap = new BitmapImage();
+                bitmap.BeginInit();
+                bitmap.UriSource = new Uri(@"Images/fullscreen-out.png", UriKind.Relative);
+                bitmap.EndInit();
+
+                FullscreenIcon.Source = bitmap;
+            }
+
+            fullscreen = !fullscreen;
+        }
         private void BtnClosePlaylist_Click(object sender, RoutedEventArgs e)
         {
             if (mediaGrid.ColumnDefinitions[1].Width != new GridLength(0))
@@ -620,6 +658,7 @@ namespace MediaPlayer
                 mediaGrid.ColumnDefinitions[2].Width = new GridLength(0);
             }
         }
+
         #endregion
 
         #region slider
@@ -714,34 +753,8 @@ namespace MediaPlayer
                 _mediaFilesInPlaylist.RemoveAt(index);
             }
         }
-
-        private void Window_Closed(object sender, EventArgs e)
-        {
-            // Save window state
-            if (WindowState == WindowState.Maximized)
-            {
-                // Use the RestoreBounds as the current values will be 0, 0 and the size of the screen
-                Properties.Settings.Default.Top = RestoreBounds.Top;
-                Properties.Settings.Default.Left = RestoreBounds.Left;
-                Properties.Settings.Default.Height = RestoreBounds.Height;
-                Properties.Settings.Default.Width = RestoreBounds.Width;
-                Properties.Settings.Default.Maximized = true;
-            }
-            else
-            {
-                Properties.Settings.Default.Top = this.Top;
-                Properties.Settings.Default.Left = this.Left;
-                Properties.Settings.Default.Height = this.Height;
-                Properties.Settings.Default.Width = this.Width;
-                Properties.Settings.Default.Maximized = false;
-            }
-            Properties.Settings.Default.PlayingVideoIndex = _playingVideoIndex;
-            Properties.Settings.Default.Save();
-        }
-
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
-            Debug.WriteLine(e.Key);
             switch (e.Key)
             {
                 case Key.Up:
@@ -768,8 +781,32 @@ namespace MediaPlayer
                     break;
                 default:
                     break;
-
             }
         }
+
+        private void Window_Closed(object sender, EventArgs e)
+        {
+            // Save window state
+            if (WindowState == WindowState.Maximized)
+            {
+                // Use the RestoreBounds as the current values will be 0, 0 and the size of the screen
+                Properties.Settings.Default.Top = RestoreBounds.Top;
+                Properties.Settings.Default.Left = RestoreBounds.Left;
+                Properties.Settings.Default.Height = RestoreBounds.Height;
+                Properties.Settings.Default.Width = RestoreBounds.Width;
+                Properties.Settings.Default.Maximized = true;
+            }
+            else
+            {
+                Properties.Settings.Default.Top = this.Top;
+                Properties.Settings.Default.Left = this.Left;
+                Properties.Settings.Default.Height = this.Height;
+                Properties.Settings.Default.Width = this.Width;
+                Properties.Settings.Default.Maximized = false;
+            }
+            Properties.Settings.Default.PlayingVideoIndex = _playingVideoIndex;
+            Properties.Settings.Default.Save();
+        }
+
     }
 }

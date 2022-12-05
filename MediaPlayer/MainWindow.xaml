@@ -14,7 +14,7 @@
 
     <DockPanel>
         <StackPanel DockPanel.Dock="Top">
-            <Menu Background="#555" Foreground="White" Cursor="Hand" FontSize="15">
+            <Menu Name="topMenu" Background="#555" Foreground="White" Cursor="Hand" FontSize="15" Height="22">
                 <MenuItem Header="File">
                     <MenuItem Header="Open File" Foreground="Black" Click="OpenMediaFile_Click">
                         <MenuItem.Icon>
@@ -47,9 +47,12 @@
             </Menu>
         </StackPanel>
 
-
-        <StackPanel DockPanel.Dock="Bottom" Background="#333">
-            <StackPanel Orientation="Horizontal" Background="#333" HorizontalAlignment="Center">
+        <Grid DockPanel.Dock="Bottom" HorizontalAlignment="Stretch" Background="#333" >
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="40"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0" Orientation="Horizontal" Background="#333" HorizontalAlignment="Center">
                 <Button Name="BtnPrevious" Click="BtnPrevious_Click">
                     <Image Source="Images/Previous.png" Height="23"/>
                 </Button>
@@ -64,10 +67,13 @@
                     <Image Source="Images/Next.png" Height="23"/>
                 </Button>
                 <Button Name="BtnShuffle" Click="BtnShuffle_Click">
-                    <Image x:Name="ShuffleIcon" Source="Images/shuffle-button.png" Height="21"/>
+                    <Image x:Name="ShuffleIcon" Source="Images/shuffle-button.png" Height="20"/>
                 </Button>
             </StackPanel>
-        </StackPanel>
+            <Button Grid.Column="1" Name="BtnFullscreen" Click="BtnFullscreen_Click">
+                <Image x:Name="FullscreenIcon" Source="Images/fullscreen-out.png" Height="18"/>
+            </Button>
+        </Grid>
         <StatusBar Background="#555" DockPanel.Dock="Bottom">
             <StatusBar.ItemsPanel>
                 <ItemsPanelTemplate>
@@ -106,7 +112,7 @@
             </StatusBarItem>
             <Popup Name="Tedavi_Popup" IsOpen="False" Placement="Relative" HorizontalOffset="0" VerticalOffset="0" PlacementTarget="{Binding ElementName=progressSlider}">
                 <Border BorderBrush="Gray" BorderThickness="1" >
-                    <MediaElement Height="90" Width="160" x:Name="mediaElementPreview" LoadedBehavior="Manual" ScrubbingEnabled="True"/>
+                    <MediaElement Height="90" Width="160" x:Name="mediaElementPreview" LoadedBehavior="Manual" ScrubbingEnabled="True" MouseLeftButtonDown="mediaElementPreview_MouseLeftButtonUp"/>
                 </Border>
             </Popup>
             <StatusBarItem Grid.Column="2">
