@@ -38,7 +38,6 @@ namespace MediaPlayer
         private bool _isPlayed = false;
         private bool _shuffle = false;
         private int _playingVideoIndex = -1;
-        private bool _isOpen = false; //
         private const string audioExtension = "All Media Files|*.mp4;*.mp3";
         private BindingList<MediaFile> _mediaFilesInPlaylist = new BindingList<MediaFile>();
         private BindingList<MediaFile> _recentlyPlayedFiles = new BindingList<MediaFile>();
@@ -139,12 +138,12 @@ namespace MediaPlayer
                         }
                         else
                         {
-                            MessageBox.Show("File đã tồn tại");
+                            MessageBox.Show("File đã tồn tại trong playlist", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
                         }
                     }
                     catch (Exception ex)
                     {
-                        System.Windows.MessageBox.Show($"Không có hỗ trợ file - {ex} ");
+                        System.Windows.MessageBox.Show($"Không có hỗ trợ file - {ex}", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
                         continue;
                     }
                 }
@@ -172,6 +171,7 @@ namespace MediaPlayer
                     mediaElementPreview.Source = new Uri(fileName, UriKind.Absolute);
                     mediaElementPreview.Stop();
                 }
+                progressSlider.Value = 0;
 
                 _isPlayed = true;
                 mediaElement.Source = new Uri(fileName, UriKind.Absolute);
@@ -228,21 +228,28 @@ namespace MediaPlayer
 
                 _mediaFilesInPlaylist[index].IsPlaying = true;
                 if (_playingVideoIndex != index && _playingVideoIndex != -1)
+                {
                     _mediaFilesInPlaylist[_playingVideoIndex].IsPlaying = false; // Xóa highlight của video đang chạy
+                    _mediaFilesInPlaylist[_playingVideoIndex].CurrentPlayedTime = "0:0:0"; //do video kết thúc nên restart lại trước khi chuyển video mới
+                }
+                
                 _playingVideoIndex = index; // gán lại giá trị đang chạy
                 if(Is_Mp3(_mediaFilesInPlaylist[index].FilePath))
                     GifMp3.Visibility = Visibility.Visible;
                 else 
                     GifMp3.Visibility = Visibility.Hidden;
 
-
+                //---code cũ của Duy----
                 //progressSlider.Value = 0;
 
-                double curPos = MediaFile.getCurrentTime(_mediaFilesInPlaylist[index].CurrentPlayedTime).TotalSeconds;
-                mediaElement.Position = TimeSpan.FromSeconds(curPos);
-                progressSlider.Value = mediaElement.Position.TotalSeconds;
+                //double curPos = MediaFile.getCurrentTime(_mediaFilesInPlaylist[index].CurrentPlayedTime).TotalSeconds;
+                //mediaElement.Position = TimeSpan.FromSeconds(curPos);
+                //progressSlider.Value = mediaElement.Position.TotalSeconds;
 
-                mediaElement.Play();
+                //mediaElement.Play();
+                //---code cũ của Duy---
+
+                playVideoInPlayList(_playingVideoIndex);
             }
 
             if (!_shuffle)
@@ -277,8 +284,19 @@ namespace MediaPlayer
         }
         private void playVideoInPlayList(int index)
         {
-            string fileName = _mediaFilesInPlaylist[index].FilePath;
+            if (_isPlayed)
+            {
+                _timer.Stop();
+            }
+            else
+            {
+                mediaElement.Play();
+            }
 
+
+
+            string fileName = _mediaFilesInPlaylist[index].FilePath;
+            
             if (Is_Mp3(fileName))
             {
                 GifMp3.Visibility = Visibility.Visible;
@@ -291,10 +309,23 @@ namespace MediaPlayer
             }
 
             mediaElement.Source = new Uri(fileName, UriKind.Absolute);
+            txblockCurrentTime.Text = _mediaFilesInPlaylist[index].CurrentPlayedTime;
 
             double curPos = MediaFile.getCurrentTime(_mediaFilesInPlaylist[index].CurrentPlayedTime).TotalSeconds;
             mediaElement.Position = TimeSpan.FromSeconds(curPos);
             progressSlider.Value = mediaElement.Position.TotalSeconds;
+
+            if (_mediaFilesInPlaylist[index].CurrentPlayedTime != "0:0:0")
+            {
+                mediaElement.Pause();
+                MessageBoxResult result = MessageBox.Show($"Xem tiếp tục ở vị trí {_mediaFilesInPlaylist[index].CurrentPlayedTime} hay xem từ đầu?", "Thông báo", MessageBoxButton.YesNo, MessageBoxImage.Question);
+
+                if (result == MessageBoxResult.No)
+                {
+                    progressSlider.Value = 0;
+                    mediaElement.Position = TimeSpan.FromSeconds(progressSlider.Value);
+                }
+            }
 
             _timer = new DispatcherTimer();
             _timer.Interval = new TimeSpan(0, 0, 0, 1, 0);
@@ -356,8 +387,12 @@ namespace MediaPlayer
         {
             if (mediaElement.Source != null)
             {
+                _timer.Stop();
+                _isPlayed = false;
+                progressSlider.Value = 0;
+                mediaElement.Position = TimeSpan.FromSeconds(progressSlider.Value);
                 mediaElement.Stop();
-
+                
                 var bitmap = new BitmapImage();
                 bitmap.BeginInit();
                 bitmap.UriSource = new Uri(@"Images/play-button-arrowhead.png", UriKind.Relative);
@@ -383,6 +418,7 @@ namespace MediaPlayer
                 {
                     _mediaFilesInPlaylist[_playingVideoIndex].IsPlaying = false;
                     GifMp3.Visibility = Visibility.Hidden;
+                    _mediaFilesInPlaylist[_playingVideoIndex].CurrentPlayedTime = txblockCurrentTime.Text;//dòng này khoa thêm current time
                     _playingVideoIndex++;
                 }
 
@@ -406,6 +442,7 @@ namespace MediaPlayer
                 else
                 {
                     _mediaFilesInPlaylist[_playingVideoIndex].IsPlaying = false;
+                    _mediaFilesInPlaylist[_playingVideoIndex].CurrentPlayedTime = txblockCurrentTime.Text;//dòng này khoa thêm current time
                     GifMp3.Visibility = Visibility.Hidden;
                     _playingVideoIndex--;
                 }
@@ -442,7 +479,12 @@ namespace MediaPlayer
 
                     _mediaFilesInPlaylist[index].IsPlaying = true;
                     if (_playingVideoIndex != index && _playingVideoIndex != -1)
+                    {
                         _mediaFilesInPlaylist[_playingVideoIndex].IsPlaying = false; // Xóa highlight của video đang chạy
+                        _mediaFilesInPlaylist[_playingVideoIndex].CurrentPlayedTime = txblockCurrentTime.Text;// dòng này khoa thêm vô để save current time
+                    }
+                    
+                    
                     _playingVideoIndex = index; // gán lại giá trị đang chạy
 
 
@@ -451,12 +493,16 @@ namespace MediaPlayer
                     else
                         GifMp3.Visibility = Visibility.Hidden;
 
+                    //---code cũ của Duy----
                     //progressSlider.Value = 0;
-                    double curPos = MediaFile.getCurrentTime(_mediaFilesInPlaylist[index].CurrentPlayedTime).TotalSeconds;
-                    mediaElement.Position = TimeSpan.FromSeconds(curPos);
-                    progressSlider.Value = mediaElement.Position.TotalSeconds;
+                    //double curPos = MediaFile.getCurrentTime(_mediaFilesInPlaylist[index].CurrentPlayedTime).TotalSeconds;
+                    //mediaElement.Position = TimeSpan.FromSeconds(curPos);
+                    //progressSlider.Value = mediaElement.Position.TotalSeconds;
 
-                    mediaElement.Play();
+                    //mediaElement.Play();
+                    //---code cũ của Duy----
+
+                    playVideoInPlayList(_playingVideoIndex);
                 }
             }
         }
@@ -516,14 +562,11 @@ namespace MediaPlayer
                 else
                     GifMp3.Visibility = Visibility.Hidden;
 
-                if (_isPlayed)
+
+                if (_playingVideoIndex >= 0)
                 {
-                    _timer.Stop();
                     _mediaFilesInPlaylist[_playingVideoIndex].IsPlaying = false;
-                }
-                else
-                {
-                    mediaElement.Play();
+                    _mediaFilesInPlaylist[_playingVideoIndex].CurrentPlayedTime = txblockCurrentTime.Text;
                 }
 
                 playVideoInPlayList(index);
@@ -640,19 +683,5 @@ namespace MediaPlayer
                 _mediaFilesInPlaylist.RemoveAt(index);
             }
         }
-
-        private void SaveCurrentProgress_Click(object sender, RoutedEventArgs e)
-        {
-            int index = playListView.SelectedIndex;
-
-            if (index >= 0)
-            {
-                _mediaFilesInPlaylist[index].CurrentPlayedTime = txblockCurrentTime.Text;
-            }
-
-            playListView.ItemsSource = _mediaFilesInPlaylist;
-        }
-
-
     }
 }
