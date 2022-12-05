@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -736,6 +737,39 @@ namespace MediaPlayer
             }
             Properties.Settings.Default.PlayingVideoIndex = _playingVideoIndex;
             Properties.Settings.Default.Save();
+        }
+
+        private void Window_KeyDown(object sender, KeyEventArgs e)
+        {
+            Debug.WriteLine(e.Key);
+            switch (e.Key)
+            {
+                case Key.Up:
+                    volumeSlider.Value += 0.02;
+                    break;
+                case Key.Down:
+                    volumeSlider.Value -= 0.02;
+                    break;
+                case Key.Left:
+                    progressSlider.Value -= 5;
+                    break;
+                case Key.Right:
+                    progressSlider.Value += 5;
+                    break;
+                case Key.Space:
+                case Key.MediaPlayPause:
+                    BtnPlay_Click(sender, e);
+                    break;
+                case Key.MediaPreviousTrack:
+                    BtnPrevious_Click(sender, e);
+                    break;
+                case Key.MediaNextTrack:
+                    BtnNext_Click(sender, e);
+                    break;
+                default:
+                    break;
+
+            }
         }
     }
 }

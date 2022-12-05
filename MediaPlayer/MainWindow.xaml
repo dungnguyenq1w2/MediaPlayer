@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:MediaPlayer"
         xmlns:gif="http://wpfanimatedgif.codeplex.com"
         mc:Ignorable="d"
-        Title="MediaPlayer" Height="450" Width="900" Loaded="Window_Loaded" Closed="Window_Closed">
+        Title="MediaPlayer" Height="450" Width="900" Loaded="Window_Loaded" Closed="Window_Closed" KeyDown="Window_KeyDown">
 
     <Window.Resources>
         <ResourceDictionary Source="CustomSliderAndButtonDictionary.xaml"/>
