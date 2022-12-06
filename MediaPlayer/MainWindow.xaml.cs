@@ -28,7 +28,7 @@ namespace MediaPlayer
         private bool _repeat = false;
         private bool _fullscreen = false;
         private DispatcherTimer _doubleClickTimer = new DispatcherTimer();
-        private const string _audioExtension = "All Media Files|*.mp4;*.mp3";
+        private const string _audioExtension = "All Media Files|*.mp4;*.mp3;*.wav;*.m4v;*.MP4;*.MP3;*.M4V;*.WAV";
         private BindingList<MediaFile> _mediaFilesInPlaylist = new BindingList<MediaFile>();
         private BindingList<MediaFile> _recentlyPlayedFiles = new BindingList<MediaFile>();
         private DispatcherTimer _timer;
@@ -64,11 +64,11 @@ namespace MediaPlayer
             playListView.ItemsSource = _mediaFilesInPlaylist;
             DataContext = this;
 
-            if (Properties.Settings.Default.PlayingVideoIndex != -1)
-            {
-                _playingVideoIndex = Properties.Settings.Default.PlayingVideoIndex;
-                playVideoInPlayList(_playingVideoIndex);
-            }
+            //if (Properties.Settings.Default.PlayingVideoIndex != -1)
+            //{
+            //    _playingVideoIndex = Properties.Settings.Default.PlayingVideoIndex;
+            //    playVideoInPlayList(_playingVideoIndex);
+            //}
         }
 
         private void ViewPlaylist_Click(object sender, RoutedEventArgs e)
@@ -168,15 +168,15 @@ namespace MediaPlayer
             if (screen.ShowDialog() == true)
             {
                 string fileName = screen.FileName;
-                PauseMp3.Visibility = Visibility.Hidden;
-                if (Is_Mp3(fileName))
+                PauseAudio.Visibility = Visibility.Hidden;
+                if (Is_Audio(fileName))
                 {
-                    GifMp3.Visibility = Visibility.Visible;
+                    GifAudio.Visibility = Visibility.Visible;
                     mediaElement.ScrubbingEnabled = false;
                 }
                 else
                 {
-                    GifMp3.Visibility = Visibility.Hidden;
+                    GifAudio.Visibility = Visibility.Hidden;
                     mediaElement.ScrubbingEnabled = true;
                     mediaElementPreview.Source = new Uri(fileName, UriKind.Absolute);
                     mediaElementPreview.Stop();
@@ -225,11 +225,20 @@ namespace MediaPlayer
 
         private void player_MediaEnded(object sender, RoutedEventArgs e)
         {
+            if (Is_Audio(mediaElement.Source.ToString()))
+            {
+                GifAudio.Visibility = Visibility.Hidden;
+                PauseAudio.Visibility = Visibility.Visible;
+            } else
+            {
+                GifAudio.Visibility = Visibility.Hidden;
+                PauseAudio.Visibility = Visibility.Hidden;
+            }
             // Tự động chơi tập tin kế tiếp khi có play shuffle 
             if (_shuffle && _mediaFilesInPlaylist.Count() > 0)
             {
-                GifMp3.Visibility = Visibility.Hidden;
-                PauseMp3.Visibility = Visibility.Hidden;
+                GifAudio.Visibility = Visibility.Hidden;
+                PauseAudio.Visibility = Visibility.Hidden;
                 Random random = new Random();
 
                 int index = random.Next(0, _mediaFilesInPlaylist.Count());
@@ -247,10 +256,10 @@ namespace MediaPlayer
                 }
 
                 _playingVideoIndex = index; // gán lại giá trị đang chạy
-                if (Is_Mp3(_mediaFilesInPlaylist[index].FilePath))
-                    GifMp3.Visibility = Visibility.Visible;
+                if (Is_Audio(_mediaFilesInPlaylist[index].FilePath))
+                    GifAudio.Visibility = Visibility.Visible;
                 else
-                    GifMp3.Visibility = Visibility.Hidden;
+                    GifAudio.Visibility = Visibility.Hidden;
 
                 playVideoInPlayList(_playingVideoIndex);
             }
@@ -268,11 +277,11 @@ namespace MediaPlayer
 
             if (_repeat)
             {
-                if (Is_Mp3(mediaElement.Source.ToString()))
-                    GifMp3.Visibility = Visibility.Visible;
+                if (Is_Audio(mediaElement.Source.ToString()))
+                    GifAudio.Visibility = Visibility.Visible;
                 else
-                    GifMp3.Visibility = Visibility.Hidden;
-                PauseMp3.Visibility = Visibility.Hidden;
+                    GifAudio.Visibility = Visibility.Hidden;
+                PauseAudio.Visibility = Visibility.Hidden;
                 progressSlider.Value = 0;
                 mediaElement.Play();
             }
@@ -303,10 +312,12 @@ namespace MediaPlayer
             return playlist;
         }
 
-        private bool Is_Mp3(string path)
+        private bool Is_Audio(string path)
         {
-            return System.IO.Path.GetExtension(path).Equals(".mp3");
+
+            return System.IO.Path.GetExtension(path).ToLower().Equals(".mp3") || System.IO.Path.GetExtension(path).ToLower().Equals(".wav");
         }
+
         private void playVideoInPlayList(int index)
         {
             if (_isPlayed)
@@ -320,18 +331,18 @@ namespace MediaPlayer
 
             string fileName = _mediaFilesInPlaylist[index].FilePath;
 
-            if (Is_Mp3(fileName))
+            if (Is_Audio(fileName))
             {
-                GifMp3.Visibility = Visibility.Visible;
+                GifAudio.Visibility = Visibility.Visible;
                 mediaElement.ScrubbingEnabled = false;
             }
             else
             {
-                GifMp3.Visibility = Visibility.Hidden;
+                GifAudio.Visibility = Visibility.Hidden;
                 mediaElement.ScrubbingEnabled = true;
             }
 
-            PauseMp3.Visibility = Visibility.Hidden;
+            PauseAudio.Visibility = Visibility.Hidden;
             mediaElement.Source = new Uri(fileName, UriKind.Absolute);
             txblockCurrentTime.Text = _mediaFilesInPlaylist[index].CurrentPlayedTime;
 
@@ -385,11 +396,11 @@ namespace MediaPlayer
                     _isPlayed = false;
                     mediaElement.Pause();
                     _timer.Stop();
-                    GifMp3.Visibility = Visibility.Hidden;
-                    if (Is_Mp3(mediaElement.Source.ToString()))
-                        PauseMp3.Visibility = Visibility.Visible;
+                    GifAudio.Visibility = Visibility.Hidden;
+                    if (Is_Audio(mediaElement.Source.ToString()))
+                        PauseAudio.Visibility = Visibility.Visible;
                     else
-                        PauseMp3.Visibility = Visibility.Hidden;
+                        PauseAudio.Visibility = Visibility.Hidden;
                     
                     var bitmap = new BitmapImage();
                     bitmap.BeginInit();
@@ -404,11 +415,11 @@ namespace MediaPlayer
                     mediaElement.Play();
                     _timer.Start();
 
-                    PauseMp3.Visibility = Visibility.Hidden;
-                    if (Is_Mp3(mediaElement.Source.ToString()))
-                        GifMp3.Visibility = Visibility.Visible;
+                    PauseAudio.Visibility = Visibility.Hidden;
+                    if (Is_Audio(mediaElement.Source.ToString()))
+                        GifAudio.Visibility = Visibility.Visible;
                     else
-                        GifMp3.Visibility = Visibility.Hidden;
+                        GifAudio.Visibility = Visibility.Hidden;
 
                     var bitmap = new BitmapImage();
                     bitmap.BeginInit();
@@ -462,8 +473,8 @@ namespace MediaPlayer
                 else
                 {
                     _mediaFilesInPlaylist[_playingVideoIndex].IsPlaying = false;
-                    GifMp3.Visibility = Visibility.Hidden;
-                    PauseMp3.Visibility = Visibility.Hidden;
+                    GifAudio.Visibility = Visibility.Hidden;
+                    PauseAudio.Visibility = Visibility.Hidden;
                     _mediaFilesInPlaylist[_playingVideoIndex].CurrentPlayedTime = txblockCurrentTime.Text;//dòng này khoa thêm current time
                     _playingVideoIndex++;
                 }
@@ -493,8 +504,8 @@ namespace MediaPlayer
                 {
                     _mediaFilesInPlaylist[_playingVideoIndex].IsPlaying = false;
                     _mediaFilesInPlaylist[_playingVideoIndex].CurrentPlayedTime = txblockCurrentTime.Text;//dòng này khoa thêm current time
-                    GifMp3.Visibility = Visibility.Hidden;
-                    PauseMp3.Visibility = Visibility.Hidden;
+                    GifAudio.Visibility = Visibility.Hidden;
+                    PauseAudio.Visibility = Visibility.Hidden;
                     _playingVideoIndex--;
                 }
 
@@ -534,8 +545,8 @@ namespace MediaPlayer
 
                 if (progressSlider.Value == progressSlider.Maximum)
                 {
-                    GifMp3.Visibility = Visibility.Hidden;
-                    PauseMp3.Visibility = Visibility.Hidden;
+                    GifAudio.Visibility = Visibility.Hidden;
+                    PauseAudio.Visibility = Visibility.Hidden;
                     Random random = new Random();
                     int index = random.Next(0, _mediaFilesInPlaylist.Count());
                     if (_mediaFilesInPlaylist.Count() > 1)
@@ -555,10 +566,10 @@ namespace MediaPlayer
                     _playingVideoIndex = index; // gán lại giá trị đang chạy
 
 
-                    if (Is_Mp3(_mediaFilesInPlaylist[index].FilePath))
-                        GifMp3.Visibility = Visibility.Visible;
+                    if (Is_Audio(_mediaFilesInPlaylist[index].FilePath))
+                        GifAudio.Visibility = Visibility.Visible;
                     else
-                        GifMp3.Visibility = Visibility.Hidden;
+                        GifAudio.Visibility = Visibility.Hidden;
 
                     playVideoInPlayList(_playingVideoIndex);
                 }
@@ -609,11 +620,11 @@ namespace MediaPlayer
             int index = GetIndexFromName(tag);
             if (index >= 0)
             {
-                PauseMp3.Visibility = Visibility.Hidden;
-                if (Is_Mp3(_mediaFilesInPlaylist[index].FilePath))
-                    GifMp3.Visibility = Visibility.Visible;
+                PauseAudio.Visibility = Visibility.Hidden;
+                if (Is_Audio(_mediaFilesInPlaylist[index].FilePath))
+                    GifAudio.Visibility = Visibility.Visible;
                 else
-                    GifMp3.Visibility = Visibility.Hidden;
+                    GifAudio.Visibility = Visibility.Hidden;
 
 
                 if (_playingVideoIndex >= 0)
@@ -676,11 +687,11 @@ namespace MediaPlayer
 
                 if (progressSlider.Value == progressSlider.Maximum)
                 {
-                    if (Is_Mp3(mediaElement.Source.ToString()))
-                        GifMp3.Visibility = Visibility.Visible;
+                    if (Is_Audio(mediaElement.Source.ToString()))
+                        GifAudio.Visibility = Visibility.Visible;
                     else
-                        GifMp3.Visibility = Visibility.Hidden;
-                    PauseMp3.Visibility = Visibility.Hidden;
+                        GifAudio.Visibility = Visibility.Hidden;
+                    PauseAudio.Visibility = Visibility.Hidden;
                     progressSlider.Value = 0;
                     mediaElement.Play();
                 }
@@ -754,6 +765,17 @@ namespace MediaPlayer
                 bitmap.EndInit();
 
                 PlayButtonIcon.Source = bitmap;
+
+                if (Is_Audio(mediaElement.Source.ToString()))
+                {
+                    GifAudio.Visibility = Visibility.Visible;
+                    PauseAudio.Visibility = Visibility.Hidden;
+                }
+                else
+                {
+                    GifAudio.Visibility = Visibility.Hidden;
+                    PauseAudio.Visibility = Visibility.Hidden;
+                }
             }
         }
 
@@ -809,8 +831,8 @@ namespace MediaPlayer
                         progressSlider.Value = 0;
 
                         _isPlayed = false;
-                        GifMp3.Visibility = Visibility.Hidden;
-                        PauseMp3.Visibility = Visibility.Hidden;
+                        GifAudio.Visibility = Visibility.Hidden;
+                        PauseAudio.Visibility = Visibility.Hidden;
                         mediaElement.Source = null;
                         _playingVideoIndex = -1;
                     }

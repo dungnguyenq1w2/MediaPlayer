@@ -169,8 +169,8 @@
 
             <MediaElement Grid.Column="0" x:Name="mediaElement" LoadedBehavior="Manual" MediaOpened="player_MediaOpened" MediaEnded="player_MediaEnded" ScrubbingEnabled="True"/>
 
-            <Image x:Name="GifMp3" gif:ImageBehavior.AnimatedSource="Images/Disk.gif" Visibility="Hidden"/>
-            <Image x:Name="PauseMp3" Source="Images/pauseMp3.png" Visibility="Hidden"/>
+            <Image x:Name="GifAudio" gif:ImageBehavior.AnimatedSource="Images/Disk.gif" Visibility="Hidden"/>
+            <Image x:Name="PauseAudio" Source="Images/pauseAudio.png" Visibility="Hidden"/>
             <GridSplitter Width="2" Background="#444"/>
 
             <DockPanel Grid.Column="1">
