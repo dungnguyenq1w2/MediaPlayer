@@ -418,6 +418,10 @@ namespace MediaPlayer
                     PlayButtonIcon.Source = bitmap;
                 }
             }
+            else
+            {
+                MessageBox.Show("Chưa có video đang phát", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
         }
 
         private void BtnStop_Click(object sender, RoutedEventArgs e)
@@ -436,6 +440,10 @@ namespace MediaPlayer
                 bitmap.EndInit();
 
                 PlayButtonIcon.Source = bitmap;
+            }
+            else
+            {
+                MessageBox.Show("Chưa có video đang phát", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
 
@@ -463,6 +471,10 @@ namespace MediaPlayer
                 playVideoInPlayList(_playingVideoIndex);
 
             }
+            else
+            {
+                MessageBox.Show("Chưa có video đang phát", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
         }
 
         private void BtnPrevious_Click(object sender, RoutedEventArgs e)
@@ -488,6 +500,10 @@ namespace MediaPlayer
 
 
                 playVideoInPlayList(_playingVideoIndex);
+            }
+            else
+            {
+                MessageBox.Show("Chưa có video đang phát", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
 
