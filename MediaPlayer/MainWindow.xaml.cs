@@ -25,10 +25,10 @@ namespace MediaPlayer
         private bool _shuffle = false;
         private int _playingVideoIndex = -1;
         private double _videoSpeed = 1;
-
-        private bool fullscreen = false;
-        private DispatcherTimer DoubleClickTimer = new DispatcherTimer();
-        private const string audioExtension = "All Media Files|*.mp4;*.mp3";
+        private bool _repeat = false;
+        private bool _fullscreen = false;
+        private DispatcherTimer _doubleClickTimer = new DispatcherTimer();
+        private const string _audioExtension = "All Media Files|*.mp4;*.mp3";
         private BindingList<MediaFile> _mediaFilesInPlaylist = new BindingList<MediaFile>();
         private BindingList<MediaFile> _recentlyPlayedFiles = new BindingList<MediaFile>();
         private DispatcherTimer _timer;
@@ -124,7 +124,7 @@ namespace MediaPlayer
         {
             var screen = new Microsoft.Win32.OpenFileDialog
             {
-                Filter = audioExtension, // Dùng để thêm nhiều loại file vào 
+                Filter = _audioExtension, // Dùng để thêm nhiều loại file vào 
                 Multiselect = true
             };
             if (screen.ShowDialog() == true)
@@ -163,7 +163,7 @@ namespace MediaPlayer
         {
             var screen = new Microsoft.Win32.OpenFileDialog
             {
-                Filter = audioExtension, // Dùng để thêm nhiều loại file vào 
+                Filter = _audioExtension, // Dùng để thêm nhiều loại file vào 
             };
             if (screen.ShowDialog() == true)
             {
@@ -192,6 +192,9 @@ namespace MediaPlayer
                 _timer.Tick += _timer_Tick;
 
                 _timer.Start();
+
+                if (_playingVideoIndex != -1)
+                    _mediaFilesInPlaylist[_playingVideoIndex].IsPlaying = false;
             }
         }
 
@@ -249,16 +252,6 @@ namespace MediaPlayer
                 else
                     GifMp3.Visibility = Visibility.Hidden;
 
-                //---code cũ của Duy----
-                //progressSlider.Value = 0;
-
-                //double curPos = MediaFile.getCurrentTime(_mediaFilesInPlaylist[index].CurrentPlayedTime).TotalSeconds;
-                //mediaElement.Position = TimeSpan.FromSeconds(curPos);
-                //progressSlider.Value = mediaElement.Position.TotalSeconds;
-
-                //mediaElement.Play();
-                //---code cũ của Duy---
-
                 playVideoInPlayList(_playingVideoIndex);
             }
 
@@ -271,6 +264,17 @@ namespace MediaPlayer
                 bitmap.EndInit();
 
                 PlayButtonIcon.Source = bitmap;
+            }
+
+            if (_repeat)
+            {
+                if (Is_Mp3(mediaElement.Source.ToString()))
+                    GifMp3.Visibility = Visibility.Visible;
+                else
+                    GifMp3.Visibility = Visibility.Hidden;
+                PauseMp3.Visibility = Visibility.Hidden;
+                progressSlider.Value = 0;
+                mediaElement.Play();
             }
         }
 
@@ -491,6 +495,17 @@ namespace MediaPlayer
         {
             if (mediaElement.Source != null && _mediaFilesInPlaylist.Count() > 0)
             {
+                if (_repeat)
+                {
+                    var bitmapRepeat = new BitmapImage();
+                    bitmapRepeat.BeginInit();
+                    bitmapRepeat.UriSource = new Uri(@"Images/repeat-button.png", UriKind.Relative);
+                    bitmapRepeat.EndInit();
+                    _repeat = !_repeat;
+
+                    RepeatIcon.Source = bitmapRepeat;
+                }
+
                 var bitmap = new BitmapImage();
                 bitmap.BeginInit();
                 if (_shuffle)
@@ -529,17 +544,12 @@ namespace MediaPlayer
                     else
                         GifMp3.Visibility = Visibility.Hidden;
 
-                    //---code cũ của Duy----
-                    //progressSlider.Value = 0;
-                    //double curPos = MediaFile.getCurrentTime(_mediaFilesInPlaylist[index].CurrentPlayedTime).TotalSeconds;
-                    //mediaElement.Position = TimeSpan.FromSeconds(curPos);
-                    //progressSlider.Value = mediaElement.Position.TotalSeconds;
-
-                    //mediaElement.Play();
-                    //---code cũ của Duy----
-
                     playVideoInPlayList(_playingVideoIndex);
                 }
+            }
+            else
+            {
+                MessageBox.Show("Chưa có video đang phát", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
 
@@ -626,11 +636,47 @@ namespace MediaPlayer
 
         private void BtnRepeat_Click(object sender, RoutedEventArgs e)
         {
+            if (mediaElement.Source != null)
+            {
+                if (_shuffle)
+                {
+                    var bitmapShuffle = new BitmapImage();
+                    bitmapShuffle.BeginInit();
+                    bitmapShuffle.UriSource = new Uri(@"Images/shuffle-button.png", UriKind.Relative);
+                    bitmapShuffle.EndInit();
+                    _shuffle = !_shuffle;
 
+                    ShuffleIcon.Source = bitmapShuffle;
+                }
+                var bitmap = new BitmapImage();
+                bitmap.BeginInit();
+                if (_repeat)
+                    bitmap.UriSource = new Uri(@"Images/repeat-button.png", UriKind.Relative);
+                else
+                    bitmap.UriSource = new Uri(@"Images/repeat-click.png", UriKind.Relative);
+                _repeat = !_repeat;
+                bitmap.EndInit();
+                RepeatIcon.Source = bitmap;
+
+                if (progressSlider.Value == progressSlider.Maximum)
+                {
+                    if (Is_Mp3(mediaElement.Source.ToString()))
+                        GifMp3.Visibility = Visibility.Visible;
+                    else
+                        GifMp3.Visibility = Visibility.Hidden;
+                    PauseMp3.Visibility = Visibility.Hidden;
+                    progressSlider.Value = 0;
+                    mediaElement.Play();
+                }
+            }
+            else
+            {
+                MessageBox.Show("Chưa có video đang phát", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
         }
         private void BtnFullscreen_Click(object sender, RoutedEventArgs e)
         {
-            if (!fullscreen)
+            if (!_fullscreen)
             {
                 this.WindowStyle = WindowStyle.None;
                 this.WindowState = WindowState.Maximized;
@@ -657,7 +703,7 @@ namespace MediaPlayer
                 FullscreenIcon.Source = bitmap;
             }
 
-            fullscreen = !fullscreen;
+            _fullscreen = !_fullscreen;
         }
         private void BtnClosePlaylist_Click(object sender, RoutedEventArgs e)
         {
@@ -666,7 +712,6 @@ namespace MediaPlayer
                 mediaGrid.ColumnDefinitions[1].Width = new GridLength(0);
             }
         }
-
         private void BtnCloseRecentFilesList_Click(object sender, RoutedEventArgs e)
         {
             if (mediaGrid.ColumnDefinitions[2].Width != new GridLength(0))
@@ -769,6 +814,31 @@ namespace MediaPlayer
                 }
                 _mediaFilesInPlaylist.RemoveAt(index);
             }
+
+            if(_mediaFilesInPlaylist.Count() == 0)
+            {
+                if (_repeat)
+                {
+                    var bitmapRepeat = new BitmapImage();
+                    bitmapRepeat.BeginInit();
+                    bitmapRepeat.UriSource = new Uri(@"Images/repeat-button.png", UriKind.Relative);
+                    bitmapRepeat.EndInit();
+                    _repeat = !_repeat;
+
+                    RepeatIcon.Source = bitmapRepeat;
+                }
+
+                if (_shuffle)
+                {
+                    var bitmapShuffle = new BitmapImage();
+                    bitmapShuffle.BeginInit();
+                    bitmapShuffle.UriSource = new Uri(@"Images/shuffle-button.png", UriKind.Relative);
+                    bitmapShuffle.EndInit();
+                    _shuffle = !_shuffle;
+
+                    ShuffleIcon.Source = bitmapShuffle;
+                }
+            }
         }
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
@@ -800,7 +870,6 @@ namespace MediaPlayer
                     break;
             }
         }
-
         private void Window_Closed(object sender, EventArgs e)
         {
             // Save window state
