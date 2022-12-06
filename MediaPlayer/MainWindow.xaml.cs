@@ -194,7 +194,10 @@ namespace MediaPlayer
                 _timer.Start();
 
                 if (_playingVideoIndex != -1)
+                {
                     _mediaFilesInPlaylist[_playingVideoIndex].IsPlaying = false;
+                    _playingVideoIndex = -1;
+                }
             }
         }
 
@@ -229,7 +232,8 @@ namespace MediaPlayer
             {
                 GifAudio.Visibility = Visibility.Hidden;
                 PauseAudio.Visibility = Visibility.Visible;
-            } else
+            }
+            else
             {
                 GifAudio.Visibility = Visibility.Hidden;
                 PauseAudio.Visibility = Visibility.Hidden;
@@ -401,7 +405,7 @@ namespace MediaPlayer
                         PauseAudio.Visibility = Visibility.Visible;
                     else
                         PauseAudio.Visibility = Visibility.Hidden;
-                    
+
                     var bitmap = new BitmapImage();
                     bitmap.BeginInit();
                     bitmap.UriSource = new Uri(@"Images/play-button-arrowhead.png", UriKind.Relative);
@@ -462,12 +466,19 @@ namespace MediaPlayer
         {
             if (mediaElement.Source != null)
             {
+                if (_playingVideoIndex == -1)
+                {
+                    MessageBox.Show("Không có playlist để phát");
+                    return;
+                }
                 if (_playingVideoIndex == _mediaFilesInPlaylist.Count - 1 && _playingVideoIndex == 0)
                 {
+                    MessageBox.Show("Đang ở cuối playlist");
                     return;
                 }
                 else if (_playingVideoIndex == _mediaFilesInPlaylist.Count - 1)
                 {
+                    MessageBox.Show("Đang ở cuối playlist");
                     return;
                 }
                 else
@@ -492,12 +503,19 @@ namespace MediaPlayer
         {
             if (mediaElement.Source != null)
             {
+                if(_playingVideoIndex == -1)
+                {
+                    MessageBox.Show("Không có playlist để phát");
+                    return;
+                }
                 if (_playingVideoIndex == _mediaFilesInPlaylist.Count - 1 && _playingVideoIndex == 0)
                 {
+                    MessageBox.Show("Đang ở đầu playlist");
                     return;
                 }
                 else if (_playingVideoIndex == 0)
                 {
+                    MessageBox.Show("Đang ở đầu playlist");
                     return;
                 }
                 else
@@ -853,7 +871,7 @@ namespace MediaPlayer
                 _mediaFilesInPlaylist.RemoveAt(index);
             }
 
-            if(_mediaFilesInPlaylist.Count() == 0)
+            if (_mediaFilesInPlaylist.Count() == 0)
             {
                 if (_repeat)
                 {

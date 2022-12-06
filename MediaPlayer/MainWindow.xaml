@@ -72,16 +72,24 @@
             <StackPanel Grid.Column="0" Orientation="Horizontal" Background="#333" HorizontalAlignment="Center">
                 <Button Name="BtnPrevious" Click="BtnPrevious_Click">
                     <Image Source="Images/Previous.png" Height="23"/>
+                    <Button.ToolTip>
+                        <TextBlock Text="Previous"/>
+                    </Button.ToolTip>
                 </Button>
                 <Button Padding="5" Focusable="False" Click="BtnPlay_Click">
                     <Image x:Name="PlayButtonIcon" Source="Images/play-button-arrowhead.png" Height="11"/>
                 </Button>
-
                 <Button Padding="5" Focusable="False" Click="BtnStop_Click">
                     <Image Source="Images/stop.png" Height="11"/>
+                    <Button.ToolTip>
+                        <TextBlock Text="Stop"/>
+                    </Button.ToolTip>
                 </Button>
                 <Button Name="BtnNext" Click="BtnNext_Click">
                     <Image Source="Images/Next.png" Height="23"/>
+                    <Button.ToolTip>
+                        <TextBlock Text="Next"/>
+                    </Button.ToolTip>
                 </Button>
                
             </StackPanel>
@@ -89,12 +97,21 @@
             <StackPanel Grid.Column="1" Orientation="Horizontal" Background="#333" HorizontalAlignment="Center">
                 <Button Padding="5" Name="BtnShuffle" Click="BtnShuffle_Click">
                     <Image x:Name="ShuffleIcon" Source="Images/shuffle-button.png" Height="20"/>
+                    <Button.ToolTip>
+                        <TextBlock Text="Shuffle"/>
+                    </Button.ToolTip>
                 </Button>
                 <Button Padding="5"  Name="BtnRepeat" Click="BtnRepeat_Click">
                     <Image x:Name="RepeatIcon" Source="Images/repeat-button.png" Height="20"/>
+                    <Button.ToolTip>
+                        <TextBlock Text="Repeat"/>
+                    </Button.ToolTip>
                 </Button>
                 <Button Padding="5" Name="BtnFullscreen" Click="BtnFullscreen_Click">
                     <Image x:Name="FullscreenIcon" Source="Images/fullscreen-out.png" Height="18"/>
+                    <Button.ToolTip>
+                        <TextBlock Text="Fullscreen"/>
+                    </Button.ToolTip>
                 </Button>
             </StackPanel>
 
