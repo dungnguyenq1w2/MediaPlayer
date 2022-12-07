@@ -238,9 +238,9 @@ namespace MediaPlayer
                             _timer.Interval = new TimeSpan(0, 0, 0, 1, 0);
                             break;
                         }
-                    case 2: // speed up
+                    case 1.5: // speed up
                         {
-                            _timer.Interval = new TimeSpan(0, 0, 0, 0, 500);
+                            _timer.Interval = new TimeSpan(0, 0, 0, 0, 666);
                             break;
                         }
                     case 0.5: // slow down
@@ -434,9 +434,9 @@ namespace MediaPlayer
                         _timer.Interval = new TimeSpan(0, 0, 0, 1, 0);
                         break;
                     }
-                case 2: // speed up
+                case 1.5: // speed up
                     {
-                        _timer.Interval = new TimeSpan(0, 0, 0, 0, 500);
+                        _timer.Interval = new TimeSpan(0, 0, 0, 0, 666);
                         break;
                     }
                 case 0.5: // slow down
@@ -738,13 +738,16 @@ namespace MediaPlayer
                 _playingVideoIndex = index;
             }
         }
-
+        
         private void SpeedUp_Click(object sender, RoutedEventArgs e)
         {
             if (mediaElement.Source != null)
             {
-                _videoSpeed = 2;
-                _timer.Interval = new TimeSpan(0, 0, 0, 0, 500);
+                SpeedUpIcon.Visibility = Visibility.Visible;
+                NormalSpeedIcon.Visibility = Visibility.Hidden;
+                SlowDownIcon.Visibility = Visibility.Hidden;
+                _videoSpeed = 1.5;
+                _timer.Interval = new TimeSpan(0, 0, 0, 0, 666);
                 mediaElement.SpeedRatio = _videoSpeed;
             }
         }
@@ -753,6 +756,10 @@ namespace MediaPlayer
         {
             if (mediaElement.Source != null)
             {
+                SpeedUpIcon.Visibility = Visibility.Hidden;
+                NormalSpeedIcon.Visibility = Visibility.Visible;
+                SlowDownIcon.Visibility = Visibility.Hidden;
+
                 _videoSpeed = 1;
                 _timer.Interval = new TimeSpan(0, 0, 0, 1, 0);
                 mediaElement.SpeedRatio = _videoSpeed;
@@ -763,6 +770,10 @@ namespace MediaPlayer
         {
             if (mediaElement.Source != null)
             {
+                SpeedUpIcon.Visibility = Visibility.Hidden;
+                NormalSpeedIcon.Visibility = Visibility.Hidden;
+                SlowDownIcon.Visibility = Visibility.Visible;
+
                 _videoSpeed = 0.5;
                 _timer.Interval = new TimeSpan(0, 0, 0, 2, 0);
                 mediaElement.SpeedRatio = _videoSpeed;
@@ -857,6 +868,7 @@ namespace MediaPlayer
 
         private void BtnSetting_Click(object sender, RoutedEventArgs e)
         {
+            
             if (_isSetting)
             {
                 var bitmap = new BitmapImage();
@@ -871,10 +883,10 @@ namespace MediaPlayer
             }
             else
             {
-                Point relativePoint = BtnSetting.TransformToAncestor(this).Transform(new Point(0d, 0d));
+                Point relativePoint = volumeSlider.TransformToAncestor(this).Transform(new Point(0d, 0d));
                 setting_Popup.IsOpen = true;
-                setting_Popup.HorizontalOffset = relativePoint.X + 100;
-                setting_Popup.VerticalOffset = relativePoint.Y - 120;
+                setting_Popup.HorizontalOffset = relativePoint.X + 70;
+                setting_Popup.VerticalOffset = relativePoint.Y - 100;
 
 
                 var bitmap = new BitmapImage();
@@ -1075,9 +1087,32 @@ namespace MediaPlayer
 
         private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            Point relativePoint = BtnSetting.TransformToAncestor(this).Transform(new Point(0d, 0d));
-            setting_Popup.HorizontalOffset = relativePoint.X + 100;
-            setting_Popup.VerticalOffset = relativePoint.Y - 120;
+            setting_Popup.IsOpen = false;
+
+            var bitmap = new BitmapImage();
+            bitmap.BeginInit();
+            bitmap.UriSource = new Uri(@"Images/settings.png", UriKind.Relative);
+            bitmap.EndInit();
+
+            SettingIcon.Source = bitmap;
+
+            setting_Popup.IsOpen = false;
+            _isSetting = false;
+        }
+
+        private void Window_LocationChanged(object sender, EventArgs e)
+        {
+            setting_Popup.IsOpen = false;
+
+            var bitmap = new BitmapImage();
+            bitmap.BeginInit();
+            bitmap.UriSource = new Uri(@"Images/settings.png", UriKind.Relative);
+            bitmap.EndInit();
+
+            SettingIcon.Source = bitmap;
+
+            setting_Popup.IsOpen = false;
+            _isSetting = false;
         }
 
     }

@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:MediaPlayer"
         xmlns:gif="http://wpfanimatedgif.codeplex.com"
         mc:Ignorable="d"
-        Title="MediaPlayer" Height="450" Width="900" Loaded="Window_Loaded" Closed="Window_Closed" KeyDown="Window_KeyDown" SizeChanged="Window_SizeChanged">
+        Title="MediaPlayer" Height="450" Width="900" Loaded="Window_Loaded" Closed="Window_Closed" KeyDown="Window_KeyDown" SizeChanged="Window_SizeChanged" LocationChanged="Window_LocationChanged">
 
     <Window.Resources>
         <ResourceDictionary Source="CustomSliderAndButtonDictionary.xaml"/>
@@ -46,20 +46,29 @@
                 </MenuItem>
             </Menu>
         </StackPanel>
-        
-        <Popup Name="setting_Popup" IsOpen="False" Placement="Relative" HorizontalOffset="0" VerticalOffset="0">
+
+        <Popup Name="setting_Popup" IsOpen="False"  Placement="Relative" HorizontalOffset="0" VerticalOffset="0">
             <Border BorderBrush="Gray" BorderThickness="1" CornerRadius="5" Background="#555">
                 <StackPanel>
-                    <Button Content="Speed up" Width="150" Click="SpeedUp_Click">
-                    </Button>
-                    <Button Content="Normal speed" Width="150" Click="NormalSpeed_Click">
-                    </Button>
-                    <Button Content="Slow down" Width="150" Click="SlowDown_Click">
-                    </Button>
+                    <StackPanel Orientation="Horizontal">
+                        <Image x:Name="SlowDownIcon" Visibility="Hidden" Source="Images/circle.png" Margin="10,4,0,0" Height="15"></Image>
+                        <Button Content="0.5x" Width="150" Click="SlowDown_Click">
+                        </Button>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Image x:Name="NormalSpeedIcon" Source="Images/circle.png" Margin="10,4,0,0" Height="15"></Image>
+                        <Button Content="Normal speed" Width="150" Click="NormalSpeed_Click">
+                        </Button>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Image x:Name="SpeedUpIcon" Visibility="Hidden" Source="Images/circle.png" Margin="10,4,0,0" Height="15"></Image>
+                        <Button Content="1.5x" Width="150" Click="SpeedUp_Click" >
+                        </Button>
+                    </StackPanel>
                 </StackPanel>
             </Border>
         </Popup>
-        
+
         <Grid DockPanel.Dock="Bottom" HorizontalAlignment="Stretch" Background="#333" >
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
@@ -89,7 +98,7 @@
                 </Button>
 
             </StackPanel>
-            
+
             <StackPanel Grid.Column="1" Orientation="Horizontal" Background="#333" HorizontalAlignment="Center">
                 <Button Padding="5" Name="BtnSetting" Click="BtnSetting_Click">
                     <Image Name="SettingIcon" Source="Images/settings.png" Height="20"/>
@@ -276,4 +285,5 @@
             </DockPanel>
         </Grid>
     </DockPanel>
+
 </Window>
