@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:MediaPlayer"
         xmlns:gif="http://wpfanimatedgif.codeplex.com"
         mc:Ignorable="d"
-        Title="MediaPlayer" Height="450" Width="900" Loaded="Window_Loaded" Closed="Window_Closed" KeyDown="Window_KeyDown">
+        Title="MediaPlayer" Height="450" Width="900" Loaded="Window_Loaded" Closed="Window_Closed" KeyDown="Window_KeyDown" SizeChanged="Window_SizeChanged">
 
     <Window.Resources>
         <ResourceDictionary Source="CustomSliderAndButtonDictionary.xaml"/>
@@ -35,7 +35,7 @@
                     </MenuItem>
                     <MenuItem Header="Add files to Playlist" Foreground="Black" Click="AddFilesPlaylist_Click">
                         <MenuItem.Icon>
-                            <Image Source="/Images/add.png"/>
+                            <Image Source="/Images/add-playlist.png"/>
                         </MenuItem.Icon>
                     </MenuItem>
                     <MenuItem Header="Save Playlist" Foreground="Black">
@@ -44,30 +44,26 @@
                         </MenuItem.Icon>
                     </MenuItem>
                 </MenuItem>
-                <MenuItem Header="Video">
-                    <MenuItem Header="Speed up" Foreground="Black" Click="SpeedUp_Click">
-                        <MenuItem.Icon>
-                            <Image Source="/Images/arrow-up.png"/>
-                        </MenuItem.Icon>
-                    </MenuItem>
-                    <MenuItem Header="Normal speed" Foreground="Black" Click="NormalSpeed_Click">
-                        <MenuItem.Icon>
-                            <Image Source="/Images/arrow-normal.png"/>
-                        </MenuItem.Icon>
-                    </MenuItem>
-                    <MenuItem Header="Slow down" Foreground="Black" Click="SlowDown_Click">
-                        <MenuItem.Icon>
-                            <Image Source="/Images/arrow-down.png"/>
-                        </MenuItem.Icon>
-                    </MenuItem>
-                </MenuItem>
             </Menu>
         </StackPanel>
-
+        
+        <Popup Name="setting_Popup" IsOpen="False" Placement="Relative" HorizontalOffset="0" VerticalOffset="0">
+            <Border BorderBrush="Gray" BorderThickness="1" CornerRadius="5" Background="#555">
+                <StackPanel>
+                    <Button Content="Speed up" Width="150" Click="SpeedUp_Click">
+                    </Button>
+                    <Button Content="Normal speed" Width="150" Click="NormalSpeed_Click">
+                    </Button>
+                    <Button Content="Slow down" Width="150" Click="SlowDown_Click">
+                    </Button>
+                </StackPanel>
+            </Border>
+        </Popup>
+        
         <Grid DockPanel.Dock="Bottom" HorizontalAlignment="Stretch" Background="#333" >
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="120"/>
             </Grid.ColumnDefinitions>
             <StackPanel Grid.Column="0" Orientation="Horizontal" Background="#333" HorizontalAlignment="Center">
                 <Button Name="BtnPrevious" Click="BtnPrevious_Click">
@@ -91,10 +87,13 @@
                         <TextBlock Text="Next"/>
                     </Button.ToolTip>
                 </Button>
-               
-            </StackPanel>
 
+            </StackPanel>
+            
             <StackPanel Grid.Column="1" Orientation="Horizontal" Background="#333" HorizontalAlignment="Center">
+                <Button Padding="5" Name="BtnSetting" Click="BtnSetting_Click">
+                    <Image Name="SettingIcon" Source="Images/settings.png" Height="20"/>
+                </Button>
                 <Button Padding="5" Name="BtnShuffle" Click="BtnShuffle_Click">
                     <Image x:Name="ShuffleIcon" Source="Images/shuffle-button.png" Height="20"/>
                     <Button.ToolTip>

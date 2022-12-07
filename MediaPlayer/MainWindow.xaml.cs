@@ -23,6 +23,7 @@ namespace MediaPlayer
         private bool _isMuted = false;
         private bool _isPlayed = false;
         private bool _shuffle = false;
+        private bool _isSetting = false;
         private int _playingVideoIndex = -1;
         private double _videoSpeed = 1;
         private bool _repeat = false;
@@ -188,7 +189,26 @@ namespace MediaPlayer
                 mediaElement.Play();
                 mediaElement.SpeedRatio = _videoSpeed;
                 _timer = new DispatcherTimer();
-                _timer.Interval = new TimeSpan(0, 0, 0, 1, 0); ;
+
+                switch (_videoSpeed)
+                {
+                    case 1:
+                        {
+                            _timer.Interval = new TimeSpan(0, 0, 0, 1, 0);
+                            break;
+                        }
+                    case 2: // speed up
+                        {
+                            _timer.Interval = new TimeSpan(0, 0, 0, 0, 500);
+                            break;
+                        }
+                    case 0.5: // slow down
+                        {
+                            _timer.Interval = new TimeSpan(0, 0, 0, 2, 0);
+                            break;
+                        }
+                }
+
                 _timer.Tick += _timer_Tick;
 
                 _timer.Start();
@@ -367,10 +387,26 @@ namespace MediaPlayer
             }
 
             _timer = new DispatcherTimer();
-            _timer.Interval = new TimeSpan(0, 0, 0, 1, 0);
+            switch (_videoSpeed)
+            {
+                case 1:
+                    {
+                        _timer.Interval = new TimeSpan(0, 0, 0, 1, 0);
+                        break;
+                    }
+                case 2: // speed up
+                    {
+                        _timer.Interval = new TimeSpan(0, 0, 0, 0, 500);
+                        break;
+                    }
+                case 0.5: // slow down
+                    {
+                        _timer.Interval = new TimeSpan(0, 0, 0, 2, 0);
+                        break;
+                    }
+            }
+            
             _timer.Tick += _timer_Tick;
-
-            mediaElement.SpeedRatio = _videoSpeed;
 
             var bitmap = new BitmapImage();
             bitmap.BeginInit();
@@ -380,6 +416,8 @@ namespace MediaPlayer
             PlayButtonIcon.Source = bitmap;
 
             mediaElement.Play();
+
+            mediaElement.SpeedRatio = _videoSpeed;
             _timer.Start();
 
             _mediaFilesInPlaylist[index].IsPlaying = true;
@@ -663,20 +701,32 @@ namespace MediaPlayer
 
         private void SpeedUp_Click(object sender, RoutedEventArgs e)
         {
-            _videoSpeed = 4;
-            mediaElement.SpeedRatio = _videoSpeed;
+            if (mediaElement.Source != null)
+            {
+                _videoSpeed = 2;
+                _timer.Interval = new TimeSpan(0, 0, 0, 0, 500);
+                mediaElement.SpeedRatio = _videoSpeed;
+            }
         }
 
         private void NormalSpeed_Click(object sender, RoutedEventArgs e)
         {
-            _videoSpeed = 1;
-            mediaElement.SpeedRatio = _videoSpeed;
+            if (mediaElement.Source != null)
+            {
+                _videoSpeed = 1;
+                _timer.Interval = new TimeSpan(0, 0, 0, 1, 0);
+                mediaElement.SpeedRatio = _videoSpeed;
+            }
         }
 
         private void SlowDown_Click(object sender, RoutedEventArgs e)
         {
-            _videoSpeed = 0.5;
-            mediaElement.SpeedRatio = _videoSpeed;
+            if (mediaElement.Source != null)
+            {
+                _videoSpeed = 0.5;
+                _timer.Interval = new TimeSpan(0, 0, 0, 2, 0);
+                mediaElement.SpeedRatio = _videoSpeed;
+            }
         }
 
         private void BtnRepeat_Click(object sender, RoutedEventArgs e)
@@ -765,6 +815,37 @@ namespace MediaPlayer
             }
         }
 
+        private void BtnSetting_Click(object sender, RoutedEventArgs e)
+        {
+            if (_isSetting)
+            {
+                var bitmap = new BitmapImage();
+                bitmap.BeginInit();
+                bitmap.UriSource = new Uri(@"Images/settings.png", UriKind.Relative);
+                bitmap.EndInit();
+
+                SettingIcon.Source = bitmap;
+
+                setting_Popup.IsOpen = false;
+                _isSetting = false;
+            }
+            else
+            {
+                Point relativePoint = BtnSetting.TransformToAncestor(this).Transform(new Point(0d, 0d));
+                setting_Popup.IsOpen = true;
+                setting_Popup.HorizontalOffset = relativePoint.X + 100;
+                setting_Popup.VerticalOffset = relativePoint.Y - 120;
+
+
+                var bitmap = new BitmapImage();
+                bitmap.BeginInit();
+                bitmap.UriSource = new Uri(@"Images/settings-click.png", UriKind.Relative);
+                bitmap.EndInit();
+
+                SettingIcon.Source = bitmap;
+                _isSetting = true;
+            }
+        }
         #endregion
 
         #region slider
@@ -950,5 +1031,11 @@ namespace MediaPlayer
             Properties.Settings.Default.Save();
         }
 
+        private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            Point relativePoint = BtnSetting.TransformToAncestor(this).Transform(new Point(0d, 0d));
+            setting_Popup.HorizontalOffset = relativePoint.X + 100;
+            setting_Popup.VerticalOffset = relativePoint.Y - 120;
+        }
     }
 }
