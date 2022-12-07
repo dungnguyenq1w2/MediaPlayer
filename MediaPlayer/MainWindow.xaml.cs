@@ -843,9 +843,9 @@ namespace MediaPlayer
             }
             else
             {
-                Point relativePoint = BtnSetting.TransformToAncestor(this).Transform(new Point(0d, 0d));
+                Point relativePoint = volumeSlider.TransformToAncestor(this).Transform(new Point(0d, 0d));
                 setting_Popup.IsOpen = true;
-                setting_Popup.HorizontalOffset = relativePoint.X - 30;
+                setting_Popup.HorizontalOffset = relativePoint.X + 70;
                 setting_Popup.VerticalOffset = relativePoint.Y - 100;
 
 
