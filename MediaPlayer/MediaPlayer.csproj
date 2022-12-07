@@ -10,9 +10,6 @@
   <ItemGroup>
     <None Remove="Images\add-playlist.png" />
     <None Remove="Images\add.png" />
-    <None Remove="Images\arrow-down.png" />
-    <None Remove="Images\arrow-normal.png" />
-    <None Remove="Images\arrow-up.png" />
     <None Remove="Images\close.png" />
     <None Remove="Images\Disk.gif" />
     <None Remove="Images\document.png" />
@@ -30,6 +27,8 @@
     <None Remove="Images\repeat-button.png" />
     <None Remove="Images\repeat-click.png" />
     <None Remove="Images\save-button.png" />
+    <None Remove="Images\settings-click.png" />
+    <None Remove="Images\settings.png" />
     <None Remove="Images\shuffle-button.png" />
     <None Remove="Images\shuffle-click.png" />
     <None Remove="Images\stop.png" />
@@ -45,9 +44,6 @@
   <ItemGroup>
     <Resource Include="Images\add-playlist.png" />
     <Resource Include="Images\add.png" />
-    <Resource Include="Images\arrow-down.png" />
-    <Resource Include="Images\arrow-normal.png" />
-    <Resource Include="Images\arrow-up.png" />
     <Resource Include="Images\close.png" />
     <Resource Include="Images\Disk.gif" />
     <Resource Include="Images\document.png" />
@@ -65,6 +61,8 @@
     <Resource Include="Images\play.png" />
     <Resource Include="Images\Previous.png" />
     <Resource Include="Images\remove.png" />
+    <Resource Include="Images\settings-click.png" />
+    <Resource Include="Images\settings.png" />
     <Resource Include="Images\shuffle-button.png" />
     <Resource Include="Images\shuffle-click.png" />
     <Resource Include="Images\stop.png" />
