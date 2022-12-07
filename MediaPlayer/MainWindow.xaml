@@ -178,7 +178,7 @@
 
         <Grid x:Name="mediaGrid" Background="#333">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="385*" />
+                <ColumnDefinition Width="385*"/>
                 <ColumnDefinition Width="184*"/>
                 <ColumnDefinition Width="0"/>
             </Grid.ColumnDefinitions>
@@ -202,7 +202,7 @@
                         <Image Source="Images/close.png"/>
                     </Button>
                 </DockPanel>
-                <ListView Background="Transparent" Name="playListView" BorderThickness="0">
+                <ListView Background="Transparent" Name="playListView" BorderThickness="0" AllowDrop="True" Drop="playListView_Drop">
                     <ListView.Resources>
                         <ContextMenu x:Key="listViewContextMenu">
                             <MenuItem Header="Remove" Click="RemoveFileFromPlayList_Click">

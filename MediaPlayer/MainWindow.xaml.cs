@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.VisualBasic.FileIO;
+using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -160,6 +161,46 @@ namespace MediaPlayer
                 playListView.ItemsSource = _mediaFilesInPlaylist;
             }
         }
+        private void playListView_Drop(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(System.Windows.DataFormats.FileDrop))
+            {
+                string[] files = (string[])e.Data.GetData(System.Windows.DataFormats.FileDrop);
+                string[] tokens = _audioExtension.Split('|');
+                string[] extensions = tokens[1].Split(';');
+                foreach (var filename in files)
+                {
+                    try
+                    {
+                        foreach (string extension in extensions)
+                        {
+                            if (extension.Contains(System.IO.Path.GetExtension(filename)))
+                            {
+                                MediaFile mediaFile = new MediaFile()
+                                {
+                                    Name = System.IO.Path.GetFileName(filename),
+                                    FilePath = filename,
+                                    IsPlaying = false,
+                                };
+                                MediaFile file = _mediaFilesInPlaylist.SingleOrDefault(e => e.FilePath == mediaFile.FilePath)!;
+                                if (file == null)
+                                {
+                                    _mediaFilesInPlaylist.Add(mediaFile);
+                                }
+                                break;
+                            }
+                            else { continue; }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Windows.MessageBox.Show($"Không có hỗ trợ file - {ex}", "Thông báo", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        continue;
+                    }
+                }
+            }
+        }
+
         private void OpenMediaFile_Click(object sender, RoutedEventArgs e)
         {
             var screen = new Microsoft.Win32.OpenFileDialog
@@ -338,7 +379,6 @@ namespace MediaPlayer
 
         private bool Is_Audio(string path)
         {
-
             return System.IO.Path.GetExtension(path).ToLower().Equals(".mp3") || System.IO.Path.GetExtension(path).ToLower().Equals(".wav");
         }
 
@@ -405,7 +445,7 @@ namespace MediaPlayer
                         break;
                     }
             }
-            
+
             _timer.Tick += _timer_Tick;
 
             var bitmap = new BitmapImage();
@@ -541,7 +581,7 @@ namespace MediaPlayer
         {
             if (mediaElement.Source != null)
             {
-                if(_playingVideoIndex == -1)
+                if (_playingVideoIndex == -1)
                 {
                     MessageBox.Show("Không có playlist để phát");
                     return;
@@ -977,6 +1017,7 @@ namespace MediaPlayer
                 }
             }
         }
+
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
             switch (e.Key)
@@ -1007,6 +1048,7 @@ namespace MediaPlayer
                     break;
             }
         }
+
         private void Window_Closed(object sender, EventArgs e)
         {
             // Save window state
@@ -1037,5 +1079,6 @@ namespace MediaPlayer
             setting_Popup.HorizontalOffset = relativePoint.X + 100;
             setting_Popup.VerticalOffset = relativePoint.Y - 120;
         }
+
     }
 }
