@@ -866,38 +866,30 @@ namespace MediaPlayer
             }
         }
 
-        private void BtnSetting_Click(object sender, RoutedEventArgs e)
-        {
-            
-            if (_isSetting)
-            {
-                var bitmap = new BitmapImage();
-                bitmap.BeginInit();
-                bitmap.UriSource = new Uri(@"Images/settings.png", UriKind.Relative);
-                bitmap.EndInit();
+        //private void BtnSetting_Click(object sender, RoutedEventArgs e)
+        //{
+        //    if (_isSetting)
+        //    {
+        //        var bitmap = new BitmapImage();
+        //        bitmap.BeginInit();
+        //        bitmap.UriSource = new Uri(@"Images/settings.png", UriKind.Relative);
+        //        bitmap.EndInit();
 
-                SettingIcon.Source = bitmap;
+        //        SettingIcon.Source = bitmap;
 
-                setting_Popup.IsOpen = false;
-                _isSetting = false;
-            }
-            else
-            {
-                Point relativePoint = volumeSlider.TransformToAncestor(this).Transform(new Point(0d, 0d));
-                setting_Popup.IsOpen = true;
-                setting_Popup.HorizontalOffset = relativePoint.X + 70;
-                setting_Popup.VerticalOffset = relativePoint.Y - 100;
+        //        _isSetting = false;
+        //    }
+        //    else
+        //    {
+        //        var bitmap = new BitmapImage();
+        //        bitmap.BeginInit();
+        //        bitmap.UriSource = new Uri(@"Images/settings-click.png", UriKind.Relative);
+        //        bitmap.EndInit();
 
-
-                var bitmap = new BitmapImage();
-                bitmap.BeginInit();
-                bitmap.UriSource = new Uri(@"Images/settings-click.png", UriKind.Relative);
-                bitmap.EndInit();
-
-                SettingIcon.Source = bitmap;
-                _isSetting = true;
-            }
-        }
+        //        SettingIcon.Source = bitmap;
+        //        _isSetting = true;
+        //    }
+        //}
         #endregion
 
         #region slider
@@ -1084,36 +1076,5 @@ namespace MediaPlayer
             Properties.Settings.Default.PlayingVideoIndex = _playingVideoIndex;
             Properties.Settings.Default.Save();
         }
-
-        private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
-        {
-            setting_Popup.IsOpen = false;
-
-            var bitmap = new BitmapImage();
-            bitmap.BeginInit();
-            bitmap.UriSource = new Uri(@"Images/settings.png", UriKind.Relative);
-            bitmap.EndInit();
-
-            SettingIcon.Source = bitmap;
-
-            setting_Popup.IsOpen = false;
-            _isSetting = false;
-        }
-
-        private void Window_LocationChanged(object sender, EventArgs e)
-        {
-            setting_Popup.IsOpen = false;
-
-            var bitmap = new BitmapImage();
-            bitmap.BeginInit();
-            bitmap.UriSource = new Uri(@"Images/settings.png", UriKind.Relative);
-            bitmap.EndInit();
-
-            SettingIcon.Source = bitmap;
-
-            setting_Popup.IsOpen = false;
-            _isSetting = false;
-        }
-
     }
 }
