@@ -27,7 +27,7 @@ namespace MediaPlayer
         private bool _isSetting = false;
         private int _playingVideoIndex = -1;
         private double _videoSpeed = 1;
-        private bool _repeat = false;
+        private int _repeat = 0; // 0: default, 1: play auto next video 2: repeat video
         private bool _fullscreen = false;
         private DispatcherTimer _doubleClickTimer = new DispatcherTimer();
         private const string _audioExtension = "All Media Files|*.mp4;*.mp3;*.wav;*.m4v;*.MP4;*.MP3;*.M4V;*.WAV";
@@ -340,8 +340,11 @@ namespace MediaPlayer
                 PlayButtonIcon.Source = bitmap;
             }
 
-            if (_repeat)
-            {
+            if (_repeat == 1)
+            { 
+                BtnNext_Click(sender, e);
+            }
+            else if(_repeat == 2){
                 if (Is_Audio(mediaElement.Source.ToString()))
                     GifAudio.Visibility = Visibility.Visible;
                 else
@@ -526,6 +529,8 @@ namespace MediaPlayer
                 progressSlider.Value = 0;
                 mediaElement.Position = TimeSpan.FromSeconds(progressSlider.Value);
                 mediaElement.Stop();
+                GifAudio.Visibility = Visibility.Hidden;
+                PauseAudio.Visibility = Visibility.Visible;
 
                 var bitmap = new BitmapImage();
                 bitmap.BeginInit();
@@ -549,22 +554,28 @@ namespace MediaPlayer
                     MessageBox.Show("Không có playlist để phát");
                     return;
                 }
-                if (_playingVideoIndex == _mediaFilesInPlaylist.Count - 1 && _playingVideoIndex == 0)
+                if ((_playingVideoIndex == _mediaFilesInPlaylist.Count - 1 && _playingVideoIndex == 0) || (_playingVideoIndex == _mediaFilesInPlaylist.Count - 1))
                 {
-                    MessageBox.Show("Đang ở cuối playlist");
-                    return;
-                }
-                else if (_playingVideoIndex == _mediaFilesInPlaylist.Count - 1)
-                {
-                    MessageBox.Show("Đang ở cuối playlist");
-                    return;
+                    if(_repeat == 1)
+                    {
+                        _mediaFilesInPlaylist[_playingVideoIndex].IsPlaying = false;
+                        GifAudio.Visibility = Visibility.Hidden;
+                        PauseAudio.Visibility = Visibility.Hidden;
+                        _mediaFilesInPlaylist[_playingVideoIndex].CurrentPlayedTime = txblockCurrentTime.Text;// current time
+                        _playingVideoIndex = 0;
+                    }
+                    else
+                    {
+                        MessageBox.Show("Đang ở cuối playlist");
+                        return;
+                    }
                 }
                 else
                 {
                     _mediaFilesInPlaylist[_playingVideoIndex].IsPlaying = false;
                     GifAudio.Visibility = Visibility.Hidden;
                     PauseAudio.Visibility = Visibility.Hidden;
-                    _mediaFilesInPlaylist[_playingVideoIndex].CurrentPlayedTime = txblockCurrentTime.Text;//dòng này khoa thêm current time
+                    _mediaFilesInPlaylist[_playingVideoIndex].CurrentPlayedTime = txblockCurrentTime.Text;// current time
                     _playingVideoIndex++;
                 }
 
@@ -618,13 +629,13 @@ namespace MediaPlayer
         {
             if (mediaElement.Source != null && _mediaFilesInPlaylist.Count() > 0)
             {
-                if (_repeat)
+                if (_repeat > 0)
                 {
                     var bitmapRepeat = new BitmapImage();
                     bitmapRepeat.BeginInit();
                     bitmapRepeat.UriSource = new Uri(@"Images/repeat-button.png", UriKind.Relative);
                     bitmapRepeat.EndInit();
-                    _repeat = !_repeat;
+                    _repeat = 0;
 
                     RepeatIcon.Source = bitmapRepeat;
                 }
@@ -655,7 +666,7 @@ namespace MediaPlayer
                     if (_playingVideoIndex != index && _playingVideoIndex != -1)
                     {
                         _mediaFilesInPlaylist[_playingVideoIndex].IsPlaying = false; // Xóa highlight của video đang chạy
-                        _mediaFilesInPlaylist[_playingVideoIndex].CurrentPlayedTime = txblockCurrentTime.Text;// dòng này khoa thêm vô để save current time
+                        _mediaFilesInPlaylist[_playingVideoIndex].CurrentPlayedTime = txblockCurrentTime.Text;// save current time
                     }
 
 
@@ -796,23 +807,32 @@ namespace MediaPlayer
                 }
                 var bitmap = new BitmapImage();
                 bitmap.BeginInit();
-                if (_repeat)
-                    bitmap.UriSource = new Uri(@"Images/repeat-button.png", UriKind.Relative);
+                if (_repeat == 0)
+                {
+                    _repeat = 1;
+                    bitmap.UriSource = new Uri(@"Images/repeat-auto.png", UriKind.Relative);
+                }
+                else if (_repeat == 1)
+                {
+                    _repeat = 2;
+                    bitmap.UriSource = new Uri(@"Images/repeat-one.png", UriKind.Relative);
+                }
+
                 else
-                    bitmap.UriSource = new Uri(@"Images/repeat-click.png", UriKind.Relative);
-                _repeat = !_repeat;
+                {
+                    _repeat = 0;
+                    bitmap.UriSource = new Uri(@"Images/repeat-button.png", UriKind.Relative);
+                }                
+                
                 bitmap.EndInit();
                 RepeatIcon.Source = bitmap;
 
                 if (progressSlider.Value == progressSlider.Maximum)
                 {
-                    if (Is_Audio(mediaElement.Source.ToString()))
-                        GifAudio.Visibility = Visibility.Visible;
-                    else
-                        GifAudio.Visibility = Visibility.Hidden;
-                    PauseAudio.Visibility = Visibility.Hidden;
-                    progressSlider.Value = 0;
-                    mediaElement.Play();
+                    if(_repeat == 1)
+                    {
+                        BtnNext_Click(sender, e);
+                    }
                 }
             }
             else
@@ -866,30 +886,30 @@ namespace MediaPlayer
             }
         }
 
-        //private void BtnSetting_Click(object sender, RoutedEventArgs e)
-        //{
-        //    if (_isSetting)
-        //    {
-        //        var bitmap = new BitmapImage();
-        //        bitmap.BeginInit();
-        //        bitmap.UriSource = new Uri(@"Images/settings.png", UriKind.Relative);
-        //        bitmap.EndInit();
+        private void BtnSetting_Click(object sender, RoutedEventArgs e)
+        {
+            if (_isSetting)
+            {
+                var bitmap = new BitmapImage();
+                bitmap.BeginInit();
+                bitmap.UriSource = new Uri(@"Images/settings.png", UriKind.Relative);
+                bitmap.EndInit();
 
-        //        SettingIcon.Source = bitmap;
+                SettingIcon.Source = bitmap;
 
-        //        _isSetting = false;
-        //    }
-        //    else
-        //    {
-        //        var bitmap = new BitmapImage();
-        //        bitmap.BeginInit();
-        //        bitmap.UriSource = new Uri(@"Images/settings-click.png", UriKind.Relative);
-        //        bitmap.EndInit();
+                _isSetting = false;
+            }
+            else
+            {
+                var bitmap = new BitmapImage();
+                bitmap.BeginInit();
+                bitmap.UriSource = new Uri(@"Images/settings-click.png", UriKind.Relative);
+                bitmap.EndInit();
 
-        //        SettingIcon.Source = bitmap;
-        //        _isSetting = true;
-        //    }
-        //}
+                SettingIcon.Source = bitmap;
+                _isSetting = true;
+            }
+        }
         #endregion
 
         #region slider
@@ -998,13 +1018,13 @@ namespace MediaPlayer
 
             if (_mediaFilesInPlaylist.Count() == 0)
             {
-                if (_repeat)
+                if (_repeat > 0)
                 {
                     var bitmapRepeat = new BitmapImage();
                     bitmapRepeat.BeginInit();
                     bitmapRepeat.UriSource = new Uri(@"Images/repeat-button.png", UriKind.Relative);
                     bitmapRepeat.EndInit();
-                    _repeat = !_repeat;
+                    _repeat = 0;
 
                     RepeatIcon.Source = bitmapRepeat;
                 }

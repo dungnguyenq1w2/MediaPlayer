@@ -25,8 +25,9 @@
     <None Remove="Images\playlist.png" />
     <None Remove="Images\Previous.png" />
     <None Remove="Images\remove.png" />
+    <None Remove="Images\repeat-auto.png" />
     <None Remove="Images\repeat-button.png" />
-    <None Remove="Images\repeat-click.png" />
+    <None Remove="Images\repeat-one.png" />
     <None Remove="Images\save-button.png" />
     <None Remove="Images\settings-click.png" />
     <None Remove="Images\settings.png" />
@@ -53,8 +54,9 @@
     <Resource Include="Images\fullscreen-out.png" />
     <Resource Include="Images\pauseAudio.png" />
     <Resource Include="Images\playlist.png" />
+    <Resource Include="Images\repeat-auto.png" />
     <Resource Include="Images\repeat-button.png" />
-    <Resource Include="Images\repeat-click.png" />
+    <Resource Include="Images\repeat-one.png" />
     <Resource Include="Images\save-button.png" />
     <Resource Include="Images\mute-volume-control.png" />
     <Resource Include="Images\Next.png" />
