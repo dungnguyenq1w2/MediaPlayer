@@ -27,9 +27,8 @@ namespace MediaPlayer
         private bool _isSetting = false;
         private int _playingVideoIndex = -1;
         private double _videoSpeed = 1;
-        private int _repeat = 0; // 0: default, 1: play auto next video 2: repeat video
+        private int _repeat = 0; // 0: default, 1: play auto next video, 2: repeat video
         private bool _fullscreen = false;
-        private DispatcherTimer _doubleClickTimer = new DispatcherTimer();
         private const string _audioExtension = "All Media Files|*.mp4;*.mp3;*.wav;*.m4v;*.MP4;*.MP3;*.M4V;*.WAV";
         private BindingList<MediaFile> _mediaFilesInPlaylist = new BindingList<MediaFile>();
         private BindingList<MediaFile> _recentlyPlayedFiles = new BindingList<MediaFile>();
@@ -341,8 +340,9 @@ namespace MediaPlayer
             }
 
             if (_repeat == 1)
-            { 
-                BtnNext_Click(sender, e);
+            {
+                _mediaFilesInPlaylist[_playingVideoIndex].CurrentPlayedTime = "0:0:0";
+                BtnNext_Click(sender, e);   
             }
             else if(_repeat == 2){
                 if (Is_Audio(mediaElement.Source.ToString()))
@@ -527,10 +527,14 @@ namespace MediaPlayer
                 _timer.Stop();
                 _isPlayed = false;
                 progressSlider.Value = 0;
+                txblockCurrentTime.Text = "0:0:0";
                 mediaElement.Position = TimeSpan.FromSeconds(progressSlider.Value);
                 mediaElement.Stop();
-                GifAudio.Visibility = Visibility.Hidden;
-                PauseAudio.Visibility = Visibility.Visible;
+                if (Is_Audio(mediaElement.Source.ToString()))
+                {
+                    GifAudio.Visibility = Visibility.Hidden;
+                    PauseAudio.Visibility = Visibility.Visible;
+                }
 
                 var bitmap = new BitmapImage();
                 bitmap.BeginInit();
@@ -558,10 +562,18 @@ namespace MediaPlayer
                 {
                     if(_repeat == 1)
                     {
+                        mediaElement.Play();
                         _mediaFilesInPlaylist[_playingVideoIndex].IsPlaying = false;
                         GifAudio.Visibility = Visibility.Hidden;
                         PauseAudio.Visibility = Visibility.Hidden;
-                        _mediaFilesInPlaylist[_playingVideoIndex].CurrentPlayedTime = txblockCurrentTime.Text;// current time
+                        if (progressSlider.Value == progressSlider.Maximum)
+                        {
+                            _mediaFilesInPlaylist[_playingVideoIndex].CurrentPlayedTime = "0:0:0";
+                        }
+                        else
+                        {
+                            _mediaFilesInPlaylist[_playingVideoIndex].CurrentPlayedTime = txblockCurrentTime.Text;
+                        }
                         _playingVideoIndex = 0;
                     }
                     else
@@ -573,9 +585,16 @@ namespace MediaPlayer
                 else
                 {
                     _mediaFilesInPlaylist[_playingVideoIndex].IsPlaying = false;
+                    if (progressSlider.Value == progressSlider.Maximum)
+                    {
+                        _mediaFilesInPlaylist[_playingVideoIndex].CurrentPlayedTime = "0:0:0";
+                    }
+                    else
+                    {
+                        _mediaFilesInPlaylist[_playingVideoIndex].CurrentPlayedTime = txblockCurrentTime.Text;
+                    }
                     GifAudio.Visibility = Visibility.Hidden;
                     PauseAudio.Visibility = Visibility.Hidden;
-                    _mediaFilesInPlaylist[_playingVideoIndex].CurrentPlayedTime = txblockCurrentTime.Text;// current time
                     _playingVideoIndex++;
                 }
 
@@ -610,7 +629,14 @@ namespace MediaPlayer
                 else
                 {
                     _mediaFilesInPlaylist[_playingVideoIndex].IsPlaying = false;
-                    _mediaFilesInPlaylist[_playingVideoIndex].CurrentPlayedTime = txblockCurrentTime.Text;//dòng này khoa thêm current time
+                    if (progressSlider.Value == progressSlider.Maximum)
+                    {
+                        _mediaFilesInPlaylist[_playingVideoIndex].CurrentPlayedTime = "0:0:0";
+                    }
+                    else
+                    {
+                        _mediaFilesInPlaylist[_playingVideoIndex].CurrentPlayedTime = txblockCurrentTime.Text;
+                    }
                     GifAudio.Visibility = Visibility.Hidden;
                     PauseAudio.Visibility = Visibility.Hidden;
                     _playingVideoIndex--;

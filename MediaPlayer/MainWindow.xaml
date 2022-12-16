@@ -77,7 +77,7 @@
             </StackPanel>
 
             <StackPanel Grid.Column="1" Orientation="Horizontal" Background="#333" HorizontalAlignment="Center">
-                <Menu Background="#333" Foreground="White" Margin="0,5,0,1" Width="25" HorizontalContentAlignment="Center">
+                <Menu Background="#333" Foreground="White" Margin="0,8,0,1" Width="25" HorizontalContentAlignment="Center">
                     <MenuItem ToolTip="Setting speed" HorizontalContentAlignment="Center">
                         <MenuItem.LayoutTransform>
                             <RotateTransform Angle="180"/>
@@ -118,7 +118,7 @@
                     </Button.ToolTip>
                 </Button>
                 <Button Padding="5"  Name="BtnRepeat" Click="BtnRepeat_Click">
-                    <Image x:Name="RepeatIcon" Source="Images/repeat-button.png" Height="25"/>
+                    <Image x:Name="RepeatIcon" Source="Images/repeat-button.png" Height="30"/>
                     <Button.ToolTip>
                         <TextBlock Text="Repeat"/>
                     </Button.ToolTip>
