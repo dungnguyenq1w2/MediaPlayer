@@ -328,7 +328,7 @@ namespace MediaPlayer
                 playVideoInPlayList(_playingVideoIndex);
             }
 
-            if (!_shuffle)
+            if (!_shuffle && _repeat == 0)
             {
                 _mediaFilesInPlaylist[_playingVideoIndex].CurrentPlayedTime = "0:0:0"; //do video kết thúc nên restart lại trước khi chuyển video mới
                 var bitmap = new BitmapImage();
