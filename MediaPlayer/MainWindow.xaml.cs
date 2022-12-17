@@ -27,7 +27,7 @@ namespace MediaPlayer
         private bool _isSetting = false;
         private int _playingVideoIndex = -1;
         private double _videoSpeed = 1;
-        private bool ended = false;
+        private bool _ended = false;
         private int _repeat = 0; // 0: default, 1: play auto next video, 2: repeat video
         private bool _fullscreen = false;
         private const string _audioExtension = "All Media Files|*.mp4;*.mp3;*.wav;*.m4v;*.MP4;*.MP3;*.M4V;*.WAV";
@@ -90,7 +90,7 @@ namespace MediaPlayer
             }
             else
             {
-                var mediaFiles = new ObservableCollection<MediaFile>(_mediaFilesInPlaylist.Where(
+                var mediaFiles = new BindingList<MediaFile>(_mediaFilesInPlaylist.Where(
                                 mediaFile => mediaFile.Name.ToLower().Contains(Keyword.ToLower())).ToList());
 
                 playListView.ItemsSource = mediaFiles;
@@ -115,7 +115,7 @@ namespace MediaPlayer
             }
             else
             {
-                var mediaFiles = new ObservableCollection<MediaFile>(_recentlyPlayedFiles.Where(
+                var mediaFiles = new BindingList<MediaFile>(_recentlyPlayedFiles.Where(
                                                 mediaFile => mediaFile.Name.ToLower().Contains(SearchWord.ToLower())).ToList());
 
                 recentFilesView.ItemsSource = mediaFiles;
@@ -289,7 +289,7 @@ namespace MediaPlayer
 
         private void player_MediaEnded(object sender, RoutedEventArgs e)
         {
-            ended = true;
+            _ended = true;
             if (Is_Audio(mediaElement.Source.ToString()))
             {
                 GifAudio.Visibility = Visibility.Hidden;
@@ -333,6 +333,14 @@ namespace MediaPlayer
             if (!_shuffle && _repeat == 0)
             {
                 _mediaFilesInPlaylist[_playingVideoIndex].CurrentPlayedTime = "0:0:0"; //do video kết thúc nên restart lại trước khi chuyển video mới
+                progressSlider.Value = 0;
+                double value = progressSlider.Value;
+                TimeSpan newPosition = TimeSpan.FromSeconds(value);
+                mediaElement.Position = newPosition;
+                _timer.Stop();
+                mediaElement.Stop();
+                _isPlayed = false;
+                txblockCurrentTime.Text = "0:0:0";
                 var bitmap = new BitmapImage();
                 bitmap.BeginInit();
                 bitmap.UriSource = new Uri(@"Images/play-button-arrowhead.png", UriKind.Relative);
@@ -478,9 +486,10 @@ namespace MediaPlayer
         {
             if (mediaElement.Source != null)
             {
+                _ended = false;
                 if (_isPlayed)
                 {
-                    _isPlayed = false;
+                    _isPlayed = !_isPlayed;
                     mediaElement.Pause();
                     _timer.Stop();
                     GifAudio.Visibility = Visibility.Hidden;
@@ -498,7 +507,7 @@ namespace MediaPlayer
                 }
                 else
                 {
-                    _isPlayed = true;
+                    _isPlayed = !_isPlayed;
                     mediaElement.Play();
                     _timer.Start();
 
@@ -562,7 +571,7 @@ namespace MediaPlayer
                 }
                 if ((_playingVideoIndex == _mediaFilesInPlaylist.Count - 1 && _playingVideoIndex == 0) || (_playingVideoIndex == _mediaFilesInPlaylist.Count - 1))
                 {
-                    if(_repeat == 1 && ended)
+                    if(_repeat == 1 && _ended)
                     {
                         mediaElement.Play();
                         _mediaFilesInPlaylist[_playingVideoIndex].IsPlaying = false;
@@ -571,7 +580,7 @@ namespace MediaPlayer
                         _mediaFilesInPlaylist[_playingVideoIndex].CurrentPlayedTime = "0:0:0";
                        
                         _playingVideoIndex = 0;
-                        ended = false;
+                        _ended = false;
                     }
                     else
                     {
@@ -582,10 +591,10 @@ namespace MediaPlayer
                 else
                 {
                     _mediaFilesInPlaylist[_playingVideoIndex].IsPlaying = false;
-                    if ((_repeat == 1 && ended) || ended)
+                    if ((_repeat == 1 && _ended) || _ended)
                     {
                         _mediaFilesInPlaylist[_playingVideoIndex].CurrentPlayedTime = "0:0:0";
-                        ended = false;
+                        _ended = false;
                     }
                     else
                     {
@@ -627,9 +636,9 @@ namespace MediaPlayer
                 else
                 {
                     _mediaFilesInPlaylist[_playingVideoIndex].IsPlaying = false;
-                    if (ended)
+                    if (_ended)
                     {
-                        ended = false;
+                        _ended = false;
                         _mediaFilesInPlaylist[_playingVideoIndex].CurrentPlayedTime = "0:0:0";
                     }
                     else
