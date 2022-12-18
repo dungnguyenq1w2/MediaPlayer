@@ -684,8 +684,9 @@ namespace MediaPlayer
                 bitmap.EndInit();
                 ShuffleIcon.Source = bitmap;
 
-                if (progressSlider.Value == progressSlider.Maximum)
+                if (_ended)
                 {
+                    _ended = !_ended;
                     GifAudio.Visibility = Visibility.Hidden;
                     PauseAudio.Visibility = Visibility.Hidden;
                     Random random = new Random();
@@ -703,9 +704,7 @@ namespace MediaPlayer
                         _mediaFilesInPlaylist[_playingVideoIndex].CurrentPlayedTime = txblockCurrentTime.Text;// save current time
                     }
 
-
                     _playingVideoIndex = index; // gán lại giá trị đang chạy
-
 
                     if (Is_Audio(_mediaFilesInPlaylist[index].FilePath))
                         GifAudio.Visibility = Visibility.Visible;
