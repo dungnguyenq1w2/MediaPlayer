@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualBasic.FileIO;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -10,6 +11,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+using System.Xml;
 
 namespace MediaPlayer
 {
@@ -36,6 +38,8 @@ namespace MediaPlayer
         private DispatcherTimer _timer;
         public string Keyword { get; set; } // search playlist
         public string SearchWord { get; set; } // search recent file
+        private string _playListDataFile = "playlist.txt";
+        private string _recentPlayedDataFile = "recent_played_files.txt";
         #endregion
 
         public MainWindow()
@@ -57,11 +61,8 @@ namespace MediaPlayer
                 this.Width = Properties.Settings.Default.Width;
             }
 
-            string filename = "playlist.txt";
-            string recentPlayed = "recentPlayedFiles.txt";
-
-            _mediaFilesInPlaylist = loadPlayList(filename);
-            _recentlyPlayedFiles = loadPlayList(recentPlayed);
+            _mediaFilesInPlaylist = loadMediaFiles(_playListDataFile);
+            _recentlyPlayedFiles = loadMediaFiles(_recentPlayedDataFile);
 
             playListView.ItemsSource = _mediaFilesInPlaylist;
             DataContext = this;
@@ -352,9 +353,10 @@ namespace MediaPlayer
             if (_repeat == 1)
             {
                 _mediaFilesInPlaylist[_playingVideoIndex].CurrentPlayedTime = "0:0:0";
-                BtnNext_Click(sender, e);   
+                BtnNext_Click(sender, e);
             }
-            else if(_repeat == 2){
+            else if (_repeat == 2)
+            {
                 if (Is_Audio(mediaElement.Source.ToString()))
                     GifAudio.Visibility = Visibility.Visible;
                 else
@@ -376,18 +378,88 @@ namespace MediaPlayer
             }
             return -1;
         }
-        private BindingList<MediaFile> loadPlayList(string fileName)
+        private BindingList<MediaFile> loadMediaFiles(string fileName)
         {
-            BindingList<MediaFile> playlist = new BindingList<MediaFile>();
-            string[] lines = System.IO.File.ReadAllLines(fileName);
+            var mediaFiles = new BindingList<MediaFile>();
 
-            for (int i = 0; i < lines.Length; i++)
+            string exeFolderPath = AppDomain.CurrentDomain.BaseDirectory;
+            string filePath = $"{exeFolderPath}\\{fileName}";
+
+            try
             {
-                string[] tokens = lines[i].Split(new string[] { "|" }, StringSplitOptions.None);
+                if (System.IO.File.Exists(filePath) == true)
+                {
+                    string[] lines = System.IO.File.ReadAllLines(filePath);
 
-                playlist.Add(new MediaFile(tokens[0], tokens[1], tokens[2], tokens[3]));
+                    foreach (string line in lines)
+                    {
+                        string[] tokens = line.Split(new string[] { "|" }, StringSplitOptions.None);
+                        mediaFiles.Add(new MediaFile()
+                        {
+                            Name = tokens[0],
+                            TotalTime = tokens[1],
+                            CurrentPlayedTime = tokens[2],
+                            FilePath = tokens[3],
+                        });
+                    }
+                }
+
+                return mediaFiles;
             }
-            return playlist;
+            catch (Exception)
+            {
+                return new BindingList<MediaFile>();
+            }
+        }
+
+        private void saveMediaFiles()
+        {
+            try
+            {
+                List<string> lines = new List<string>();
+                string exeFolderPath = AppDomain.CurrentDomain.BaseDirectory;
+
+
+                // save playlist
+                foreach (var mediaFile in _mediaFilesInPlaylist)
+                {
+                    string line = string.Join(
+                        "|",
+                        new string[]
+                        {
+                            mediaFile.Name,
+                            mediaFile.TotalTime,
+                            mediaFile.CurrentPlayedTime,
+                            mediaFile.FilePath,
+                        }
+                    );
+
+                    lines.Add(line);
+                }
+                System.IO.File.WriteAllLines($"{exeFolderPath}\\{_playListDataFile}", lines);
+
+                // save recent-played files
+                lines.Clear();
+                foreach (var mediaFile in _recentlyPlayedFiles)
+                {
+                    string line = string.Join(
+                        "|",
+                        new string[]
+                        {
+                            mediaFile.Name,
+                            mediaFile.TotalTime,
+                            mediaFile.CurrentPlayedTime,
+                            mediaFile.FilePath,
+                        }
+                    );
+                    lines.Add(line);
+                }
+                System.IO.File.WriteAllLines($"{exeFolderPath}\\{_recentPlayedDataFile}", lines);
+            }
+            catch (Exception)
+            {
+                return;
+            }
         }
 
         private bool Is_Audio(string path)
@@ -571,14 +643,14 @@ namespace MediaPlayer
                 }
                 if ((_playingVideoIndex == _mediaFilesInPlaylist.Count - 1 && _playingVideoIndex == 0) || (_playingVideoIndex == _mediaFilesInPlaylist.Count - 1))
                 {
-                    if(_repeat == 1 && _ended)
+                    if (_repeat == 1 && _ended)
                     {
                         mediaElement.Play();
                         _mediaFilesInPlaylist[_playingVideoIndex].IsPlaying = false;
                         GifAudio.Visibility = Visibility.Hidden;
                         PauseAudio.Visibility = Visibility.Hidden;
                         _mediaFilesInPlaylist[_playingVideoIndex].CurrentPlayedTime = "0:0:0";
-                       
+
                         _playingVideoIndex = 0;
                         _ended = false;
                     }
@@ -782,7 +854,7 @@ namespace MediaPlayer
                 _playingVideoIndex = index;
             }
         }
-        
+
         private void SpeedUp_Click(object sender, RoutedEventArgs e)
         {
             if (mediaElement.Source != null)
@@ -855,14 +927,14 @@ namespace MediaPlayer
                 {
                     _repeat = 0;
                     bitmap.UriSource = new Uri(@"Images/repeat-button.png", UriKind.Relative);
-                }                
-                
+                }
+
                 bitmap.EndInit();
                 RepeatIcon.Source = bitmap;
 
                 if (progressSlider.Value == progressSlider.Maximum)
                 {
-                    if(_repeat == 1)
+                    if (_repeat == 1)
                     {
                         BtnNext_Click(sender, e);
                     }
@@ -1128,6 +1200,9 @@ namespace MediaPlayer
             }
             Properties.Settings.Default.PlayingVideoIndex = _playingVideoIndex;
             Properties.Settings.Default.Save();
+
+            //
+            saveMediaFiles();
         }
     }
 }

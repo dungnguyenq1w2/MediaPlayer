@@ -49,11 +49,11 @@ namespace MediaPlayer
             set { _isPlaying = value; }
         }
 
-        public MediaFile() {}
-        public MediaFile(string name, string tolalTime, string currentPlayedTime, string filePath)
+        public MediaFile() { }
+        public MediaFile(string name, string totalTime, string currentPlayedTime, string filePath)
         {
             this.Name = name;
-            this.TotalTime = tolalTime;
+            this.TotalTime = totalTime;
             this.CurrentPlayedTime = currentPlayedTime;
             this.FilePath = filePath;
         }
