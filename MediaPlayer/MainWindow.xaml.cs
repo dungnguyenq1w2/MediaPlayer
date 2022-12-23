@@ -18,8 +18,15 @@ namespace MediaPlayer
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
+
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
+        private enum ListType
+        {
+            PlayList,
+            RecentPlayed,
+        }
+
         public event PropertyChangedEventHandler? PropertyChanged;
 
         #region local attribute
@@ -27,19 +34,24 @@ namespace MediaPlayer
         private bool _isPlayed = false;
         private bool _shuffle = false;
         private bool _isSetting = false;
-        private int _playingVideoIndex = -1;
+        //
+        private int _playingPlaylistIndex = -1;
+        private int _playingRecentPlayedIndex = -1;
+        //
         private double _videoSpeed = 1;
         private bool _ended = false;
         private int _repeat = 0; // 0: default, 1: play auto next video, 2: repeat video
         private bool _fullscreen = false;
-        private const string _audioExtension = "All Media Files|*.mp4;*.mp3;*.wav;*.m4v;*.MP4;*.MP3;*.M4V;*.WAV";
+        //
         private BindingList<MediaFile> _mediaFilesInPlaylist = new BindingList<MediaFile>();
         private BindingList<MediaFile> _recentlyPlayedFiles = new BindingList<MediaFile>();
         private DispatcherTimer _timer;
         public string Keyword { get; set; } // search playlist
         public string SearchWord { get; set; } // search recent file
-        private string _playListDataFile = "playlist.txt";
-        private string _recentPlayedDataFile = "recent_played_files.txt";
+        //
+        private const string _audioExtension = "All Media Files|*.mp4;*.mp3;*.wav;*.m4v;*.MP4;*.MP3;*.M4V;*.WAV";
+        private const string _playListDataFile = "playlist.txt";
+        private const string _recentPlayedDataFile = "recent_played_files.txt";
         #endregion
 
         public MainWindow()
@@ -61,16 +73,18 @@ namespace MediaPlayer
                 this.Width = Properties.Settings.Default.Width;
             }
 
+            //_mediaFilesInPlaylist = loadMediaFiles(_playListDataFile, ListType.PlayList);
             _mediaFilesInPlaylist = loadMediaFiles(_playListDataFile);
             _recentlyPlayedFiles = loadMediaFiles(_recentPlayedDataFile);
 
             playListView.ItemsSource = _mediaFilesInPlaylist;
+            recentFilesView.ItemsSource = _recentlyPlayedFiles;
             DataContext = this;
 
             //if (Properties.Settings.Default.PlayingVideoIndex != -1)
             //{
-            //    _playingVideoIndex = Properties.Settings.Default.PlayingVideoIndex;
-            //    playVideoInPlayList(_playingVideoIndex);
+            //    _playingPlaylistIndex = Properties.Settings.Default.PlayingVideoIndex;
+            //    playFileInPlayList(_playingPlaylistIndex);
             //}
         }
 
@@ -210,9 +224,10 @@ namespace MediaPlayer
             };
             if (screen.ShowDialog() == true)
             {
-                string fileName = screen.FileName;
+                string filePath = screen.FileName;
+
                 PauseAudio.Visibility = Visibility.Hidden;
-                if (Is_Audio(fileName))
+                if (Is_Audio(filePath))
                 {
                     GifAudio.Visibility = Visibility.Visible;
                     mediaElement.ScrubbingEnabled = false;
@@ -221,13 +236,13 @@ namespace MediaPlayer
                 {
                     GifAudio.Visibility = Visibility.Hidden;
                     mediaElement.ScrubbingEnabled = true;
-                    mediaElementPreview.Source = new Uri(fileName, UriKind.Absolute);
+                    mediaElementPreview.Source = new Uri(filePath, UriKind.Absolute);
                     mediaElementPreview.Stop();
                 }
                 progressSlider.Value = 0;
 
                 _isPlayed = true;
-                mediaElement.Source = new Uri(fileName, UriKind.Absolute);
+                mediaElement.Source = new Uri(filePath, UriKind.Absolute);
                 mediaElement.Play();
                 mediaElement.SpeedRatio = _videoSpeed;
                 _timer = new DispatcherTimer();
@@ -255,12 +270,34 @@ namespace MediaPlayer
 
                 _timer.Start();
 
-                if (_playingVideoIndex != -1)
+                if (_playingPlaylistIndex != -1)
                 {
-                    _mediaFilesInPlaylist[_playingVideoIndex].IsPlaying = false;
-                    _playingVideoIndex = -1;
+                    _mediaFilesInPlaylist[_playingPlaylistIndex].IsPlaying = false;
+                    _playingPlaylistIndex = -1;
                 }
+
+                //
+                AddFileToRecentPlayedList(filePath);
             }
+        }
+
+        private void AddFileToRecentPlayedList(string filePath)
+        {
+            ////
+            MediaFile newRecentFile = new MediaFile()
+            {
+                Name = System.IO.Path.GetFileName(filePath),
+                FilePath = filePath,
+                IsPlaying = false,
+            };
+
+            int sameFileIndex = _recentlyPlayedFiles.ToList().FindIndex((file) => file.FilePath == newRecentFile.FilePath);
+            if (sameFileIndex != -1)
+            {
+                _recentlyPlayedFiles.RemoveAt(sameFileIndex);
+            }
+
+            _recentlyPlayedFiles.Insert(0, newRecentFile);
         }
 
         private void _timer_Tick(object? sender, EventArgs e)
@@ -301,39 +338,82 @@ namespace MediaPlayer
                 GifAudio.Visibility = Visibility.Hidden;
                 PauseAudio.Visibility = Visibility.Hidden;
             }
-            // Tự động chơi tập tin kế tiếp khi có play shuffle 
-            if (_shuffle && _mediaFilesInPlaylist.Count() > 0)
+
+            Debug.WriteLine(_playingPlaylistIndex);
+            Debug.WriteLine(_playingRecentPlayedIndex);
+
+            // true if playing file in playlist, false if playing in file in recent played
+            bool isPlayingPlaylist = _playingPlaylistIndex != -1 ? true : false;
+
+            if (isPlayingPlaylist)
             {
-                GifAudio.Visibility = Visibility.Hidden;
-                PauseAudio.Visibility = Visibility.Hidden;
-                Random random = new Random();
-
-                int index = random.Next(0, _mediaFilesInPlaylist.Count());
-                if (_mediaFilesInPlaylist.Count() > 1)
-                    while (index == _playingVideoIndex)
-                        index = random.Next(0, _mediaFilesInPlaylist.Count());
-
-                mediaElement.Source = new Uri(_mediaFilesInPlaylist[index].FilePath, UriKind.Absolute);
-
-                _mediaFilesInPlaylist[index].IsPlaying = true;
-                if (_playingVideoIndex != index && _playingVideoIndex != -1)
+                // Tự động chơi tập tin kế tiếp khi có play shuffle 
+                if (_shuffle && _mediaFilesInPlaylist.Count() > 0)
                 {
-                    _mediaFilesInPlaylist[_playingVideoIndex].IsPlaying = false; // Xóa highlight của video đang chạy
-                    _mediaFilesInPlaylist[_playingVideoIndex].CurrentPlayedTime = "0:0:0"; //do video kết thúc nên restart lại trước khi chuyển video mới
-                }
-
-                _playingVideoIndex = index; // gán lại giá trị đang chạy
-                if (Is_Audio(_mediaFilesInPlaylist[index].FilePath))
-                    GifAudio.Visibility = Visibility.Visible;
-                else
                     GifAudio.Visibility = Visibility.Hidden;
+                    PauseAudio.Visibility = Visibility.Hidden;
+                    Random random = new Random();
 
-                playVideoInPlayList(_playingVideoIndex);
+                    int index = random.Next(0, _mediaFilesInPlaylist.Count());
+                    if (_mediaFilesInPlaylist.Count() > 1)
+                        while (index == _playingPlaylistIndex)
+                            index = random.Next(0, _mediaFilesInPlaylist.Count());
+
+                    mediaElement.Source = new Uri(_mediaFilesInPlaylist[index].FilePath, UriKind.Absolute);
+
+                    _mediaFilesInPlaylist[index].IsPlaying = true;
+                    if (_playingPlaylistIndex != index && _playingPlaylistIndex != -1)
+                    {
+                        _mediaFilesInPlaylist[_playingPlaylistIndex].IsPlaying = false; // Xóa highlight của video đang chạy
+                        _mediaFilesInPlaylist[_playingPlaylistIndex].CurrentPlayedTime = "0:0:0"; //do video kết thúc nên restart lại trước khi chuyển video mới
+                    }
+
+                    _playingPlaylistIndex = index; // gán lại giá trị đang chạy
+                    if (Is_Audio(_mediaFilesInPlaylist[index].FilePath))
+                        GifAudio.Visibility = Visibility.Visible;
+                    else
+                        GifAudio.Visibility = Visibility.Hidden;
+
+                    playFileInPlayList(_playingPlaylistIndex);
+                }
+            }
+            else
+            {
+                // Tự động chơi tập tin kế tiếp khi có play shuffle 
+                if (_shuffle && _recentlyPlayedFiles.Count() > 0)
+                {
+                    GifAudio.Visibility = Visibility.Hidden;
+                    PauseAudio.Visibility = Visibility.Hidden;
+                    Random random = new Random();
+
+                    int index = random.Next(0, _recentlyPlayedFiles.Count());
+                    if (_recentlyPlayedFiles.Count() > 1)
+                        while (index == _playingRecentPlayedIndex)
+                            index = random.Next(0, _recentlyPlayedFiles.Count());
+
+                    mediaElement.Source = new Uri(_recentlyPlayedFiles[index].FilePath, UriKind.Absolute);
+
+                    _recentlyPlayedFiles[index].IsPlaying = true;
+                    if (_playingRecentPlayedIndex != index && _playingRecentPlayedIndex != -1)
+                    {
+                        _recentlyPlayedFiles[_playingRecentPlayedIndex].IsPlaying = false; // Xóa highlight của video đang chạy
+                        _recentlyPlayedFiles[_playingRecentPlayedIndex].CurrentPlayedTime = "0:0:0"; //do video kết thúc nên restart lại trước khi chuyển video mới
+                    }
+
+                    _playingRecentPlayedIndex = index; // gán lại giá trị đang chạy
+                    if (Is_Audio(_recentlyPlayedFiles[index].FilePath))
+                        GifAudio.Visibility = Visibility.Visible;
+                    else
+                        GifAudio.Visibility = Visibility.Hidden;
+
+                    playFileInRecentPlayed(_playingRecentPlayedIndex);
+                }
             }
 
+            //////
             if (!_shuffle && _repeat == 0)
             {
-                _mediaFilesInPlaylist[_playingVideoIndex].CurrentPlayedTime = "0:0:0"; //do video kết thúc nên restart lại trước khi chuyển video mới
+                _mediaFilesInPlaylist[_playingPlaylistIndex].CurrentPlayedTime = "0:0:0"; //do video kết thúc nên restart lại trước khi chuyển video mới
                 progressSlider.Value = 0;
                 double value = progressSlider.Value;
                 TimeSpan newPosition = TimeSpan.FromSeconds(value);
@@ -352,7 +432,7 @@ namespace MediaPlayer
 
             if (_repeat == 1)
             {
-                _mediaFilesInPlaylist[_playingVideoIndex].CurrentPlayedTime = "0:0:0";
+                _mediaFilesInPlaylist[_playingPlaylistIndex].CurrentPlayedTime = "0:0:0";
                 BtnNext_Click(sender, e);
             }
             else if (_repeat == 2)
@@ -369,15 +449,20 @@ namespace MediaPlayer
 
         #region Helper
 
-        private int GetIndexFromName(string tagName)
+        private int GetIndexFromName(string tagName, ListType type)
         {
-            for (int i = 0; i < _mediaFilesInPlaylist.Count; i++)
+            int index = -1;
+            if (type == ListType.PlayList)
             {
-                if (_mediaFilesInPlaylist[i].Name == tagName)
-                    return i;
+                index = _mediaFilesInPlaylist.ToList().FindIndex((file) => file.Name == tagName);
             }
-            return -1;
+            else if (type == ListType.RecentPlayed)
+            {
+                index = _recentlyPlayedFiles.ToList().FindIndex((file) => file.Name == tagName);
+            }
+            return index;
         }
+        //private BindingList<MediaFile> loadMediaFiles(string fileName, ListType type)
         private BindingList<MediaFile> loadMediaFiles(string fileName)
         {
             var mediaFiles = new BindingList<MediaFile>();
@@ -394,6 +479,7 @@ namespace MediaPlayer
                     foreach (string line in lines)
                     {
                         string[] tokens = line.Split(new string[] { "|" }, StringSplitOptions.None);
+
                         mediaFiles.Add(new MediaFile()
                         {
                             Name = tokens[0],
@@ -412,16 +498,30 @@ namespace MediaPlayer
             }
         }
 
-        private void saveMediaFiles()
+        private void saveMediaFiles(string fileName, ListType type)
         {
+            string exeFolderPath = AppDomain.CurrentDomain.BaseDirectory;
+            string filePath = $"{exeFolderPath}\\{fileName}";
+            List<string> lines = new List<string>();
+
+            BindingList<MediaFile>? mediaFiles;
+
+            if (type == ListType.PlayList)
+            {
+                mediaFiles = new BindingList<MediaFile>(_mediaFilesInPlaylist);
+            }
+            else if (type == ListType.RecentPlayed)
+            {
+                mediaFiles = new BindingList<MediaFile>(_recentlyPlayedFiles);
+            }
+            else
+            {
+                return;
+            }
+
             try
             {
-                List<string> lines = new List<string>();
-                string exeFolderPath = AppDomain.CurrentDomain.BaseDirectory;
-
-
-                // save playlist
-                foreach (var mediaFile in _mediaFilesInPlaylist)
+                foreach (var mediaFile in mediaFiles)
                 {
                     string line = string.Join(
                         "|",
@@ -436,25 +536,8 @@ namespace MediaPlayer
 
                     lines.Add(line);
                 }
-                System.IO.File.WriteAllLines($"{exeFolderPath}\\{_playListDataFile}", lines);
 
-                // save recent-played files
-                lines.Clear();
-                foreach (var mediaFile in _recentlyPlayedFiles)
-                {
-                    string line = string.Join(
-                        "|",
-                        new string[]
-                        {
-                            mediaFile.Name,
-                            mediaFile.TotalTime,
-                            mediaFile.CurrentPlayedTime,
-                            mediaFile.FilePath,
-                        }
-                    );
-                    lines.Add(line);
-                }
-                System.IO.File.WriteAllLines($"{exeFolderPath}\\{_recentPlayedDataFile}", lines);
+                System.IO.File.WriteAllLines(filePath, lines);
             }
             catch (Exception)
             {
@@ -467,7 +550,7 @@ namespace MediaPlayer
             return System.IO.Path.GetExtension(path).ToLower().Equals(".mp3") || System.IO.Path.GetExtension(path).ToLower().Equals(".wav");
         }
 
-        private void playVideoInPlayList(int index)
+        private void playFileInPlayList(int index)
         {
             if (_isPlayed)
             {
@@ -478,9 +561,9 @@ namespace MediaPlayer
                 mediaElement.Play();
             }
 
-            string fileName = _mediaFilesInPlaylist[index].FilePath;
+            string filePath = _mediaFilesInPlaylist[index].FilePath;
 
-            if (Is_Audio(fileName))
+            if (Is_Audio(filePath))
             {
                 GifAudio.Visibility = Visibility.Visible;
                 mediaElement.ScrubbingEnabled = false;
@@ -492,7 +575,7 @@ namespace MediaPlayer
             }
 
             PauseAudio.Visibility = Visibility.Hidden;
-            mediaElement.Source = new Uri(fileName, UriKind.Absolute);
+            mediaElement.Source = new Uri(filePath, UriKind.Absolute);
             txblockCurrentTime.Text = _mediaFilesInPlaylist[index].CurrentPlayedTime;
 
             double curPos = MediaFile.getCurrentTime(_mediaFilesInPlaylist[index].CurrentPlayedTime).TotalSeconds;
@@ -548,8 +631,86 @@ namespace MediaPlayer
             _mediaFilesInPlaylist[index].IsPlaying = true;
             _isPlayed = true;
 
-            mediaElementPreview.Source = new Uri(fileName, UriKind.Absolute);
+            mediaElementPreview.Source = new Uri(filePath, UriKind.Absolute);
             mediaElementPreview.Stop();
+
+            //
+            AddFileToRecentPlayedList(filePath);
+        }
+
+        private void playFileInRecentPlayed(int index)
+        {
+            if (_isPlayed)
+            {
+                _timer.Stop();
+            }
+            else
+            {
+                mediaElement.Play();
+            }
+
+            string filePath = _recentlyPlayedFiles[index].FilePath;
+
+            if (Is_Audio(filePath))
+            {
+                GifAudio.Visibility = Visibility.Visible;
+                mediaElement.ScrubbingEnabled = false;
+            }
+            else
+            {
+                GifAudio.Visibility = Visibility.Hidden;
+                mediaElement.ScrubbingEnabled = true;
+            }
+
+            PauseAudio.Visibility = Visibility.Hidden;
+            mediaElement.Source = new Uri(filePath, UriKind.Absolute);
+
+            txblockCurrentTime.Text = "0:0:0";
+            progressSlider.Value = 0;
+            mediaElement.Position = TimeSpan.FromSeconds(0);
+
+            _timer = new DispatcherTimer();
+            switch (_videoSpeed)
+            {
+                case 1:
+                    {
+                        _timer.Interval = new TimeSpan(0, 0, 0, 1, 0);
+                        break;
+                    }
+                case 1.5: // speed up
+                    {
+                        _timer.Interval = new TimeSpan(0, 0, 0, 0, 666);
+                        break;
+                    }
+                case 0.5: // slow down
+                    {
+                        _timer.Interval = new TimeSpan(0, 0, 0, 2, 0);
+                        break;
+                    }
+            }
+
+            _timer.Tick += _timer_Tick;
+
+            var bitmap = new BitmapImage();
+            bitmap.BeginInit();
+            bitmap.UriSource = new Uri(@"Images/pause.png", UriKind.Relative);
+            bitmap.EndInit();
+
+            PlayButtonIcon.Source = bitmap;
+
+            mediaElement.Play();
+
+            mediaElement.SpeedRatio = _videoSpeed;
+            _timer.Start();
+
+            _recentlyPlayedFiles[index].IsPlaying = true;
+            _isPlayed = true;
+
+            mediaElementPreview.Source = new Uri(filePath, UriKind.Absolute);
+            mediaElementPreview.Stop();
+
+            //
+            AddFileToRecentPlayedList(filePath);
         }
         #endregion
 
@@ -636,22 +797,22 @@ namespace MediaPlayer
         {
             if (mediaElement.Source != null)
             {
-                if (_playingVideoIndex == -1)
+                if (_playingPlaylistIndex == -1)
                 {
                     MessageBox.Show("Không có playlist để phát");
                     return;
                 }
-                if ((_playingVideoIndex == _mediaFilesInPlaylist.Count - 1 && _playingVideoIndex == 0) || (_playingVideoIndex == _mediaFilesInPlaylist.Count - 1))
+                if ((_playingPlaylistIndex == _mediaFilesInPlaylist.Count - 1 && _playingPlaylistIndex == 0) || (_playingPlaylistIndex == _mediaFilesInPlaylist.Count - 1))
                 {
                     if (_repeat == 1 && _ended)
                     {
                         mediaElement.Play();
-                        _mediaFilesInPlaylist[_playingVideoIndex].IsPlaying = false;
+                        _mediaFilesInPlaylist[_playingPlaylistIndex].IsPlaying = false;
                         GifAudio.Visibility = Visibility.Hidden;
                         PauseAudio.Visibility = Visibility.Hidden;
-                        _mediaFilesInPlaylist[_playingVideoIndex].CurrentPlayedTime = "0:0:0";
+                        _mediaFilesInPlaylist[_playingPlaylistIndex].CurrentPlayedTime = "0:0:0";
 
-                        _playingVideoIndex = 0;
+                        _playingPlaylistIndex = 0;
                         _ended = false;
                     }
                     else
@@ -662,22 +823,22 @@ namespace MediaPlayer
                 }
                 else
                 {
-                    _mediaFilesInPlaylist[_playingVideoIndex].IsPlaying = false;
+                    _mediaFilesInPlaylist[_playingPlaylistIndex].IsPlaying = false;
                     if ((_repeat == 1 && _ended) || _ended)
                     {
-                        _mediaFilesInPlaylist[_playingVideoIndex].CurrentPlayedTime = "0:0:0";
+                        _mediaFilesInPlaylist[_playingPlaylistIndex].CurrentPlayedTime = "0:0:0";
                         _ended = false;
                     }
                     else
                     {
-                        _mediaFilesInPlaylist[_playingVideoIndex].CurrentPlayedTime = txblockCurrentTime.Text;
+                        _mediaFilesInPlaylist[_playingPlaylistIndex].CurrentPlayedTime = txblockCurrentTime.Text;
                     }
                     GifAudio.Visibility = Visibility.Hidden;
                     PauseAudio.Visibility = Visibility.Hidden;
-                    _playingVideoIndex++;
+                    _playingPlaylistIndex++;
                 }
 
-                playVideoInPlayList(_playingVideoIndex);
+                playFileInPlayList(_playingPlaylistIndex);
 
             }
             else
@@ -690,40 +851,40 @@ namespace MediaPlayer
         {
             if (mediaElement.Source != null)
             {
-                if (_playingVideoIndex == -1)
+                if (_playingPlaylistIndex == -1)
                 {
                     MessageBox.Show("Không có playlist để phát");
                     return;
                 }
-                if (_playingVideoIndex == _mediaFilesInPlaylist.Count - 1 && _playingVideoIndex == 0)
+                if (_playingPlaylistIndex == _mediaFilesInPlaylist.Count - 1 && _playingPlaylistIndex == 0)
                 {
                     MessageBox.Show("Đang ở đầu playlist");
                     return;
                 }
-                else if (_playingVideoIndex == 0)
+                else if (_playingPlaylistIndex == 0)
                 {
                     MessageBox.Show("Đang ở đầu playlist");
                     return;
                 }
                 else
                 {
-                    _mediaFilesInPlaylist[_playingVideoIndex].IsPlaying = false;
+                    _mediaFilesInPlaylist[_playingPlaylistIndex].IsPlaying = false;
                     if (_ended)
                     {
                         _ended = false;
-                        _mediaFilesInPlaylist[_playingVideoIndex].CurrentPlayedTime = "0:0:0";
+                        _mediaFilesInPlaylist[_playingPlaylistIndex].CurrentPlayedTime = "0:0:0";
                     }
                     else
                     {
-                        _mediaFilesInPlaylist[_playingVideoIndex].CurrentPlayedTime = txblockCurrentTime.Text;
+                        _mediaFilesInPlaylist[_playingPlaylistIndex].CurrentPlayedTime = txblockCurrentTime.Text;
                     }
                     GifAudio.Visibility = Visibility.Hidden;
                     PauseAudio.Visibility = Visibility.Hidden;
-                    _playingVideoIndex--;
+                    _playingPlaylistIndex--;
                 }
 
 
-                playVideoInPlayList(_playingVideoIndex);
+                playFileInPlayList(_playingPlaylistIndex);
             }
             else
             {
@@ -764,26 +925,26 @@ namespace MediaPlayer
                     Random random = new Random();
                     int index = random.Next(0, _mediaFilesInPlaylist.Count());
                     if (_mediaFilesInPlaylist.Count() > 1)
-                        while (index == _playingVideoIndex)
+                        while (index == _playingPlaylistIndex)
                             index = random.Next(0, _mediaFilesInPlaylist.Count());
 
                     mediaElement.Source = new Uri(_mediaFilesInPlaylist[index].FilePath, UriKind.Absolute);
 
                     _mediaFilesInPlaylist[index].IsPlaying = true;
-                    if (_playingVideoIndex != index && _playingVideoIndex != -1)
+                    if (_playingPlaylistIndex != index && _playingPlaylistIndex != -1)
                     {
-                        _mediaFilesInPlaylist[_playingVideoIndex].IsPlaying = false; // Xóa highlight của video đang chạy
-                        _mediaFilesInPlaylist[_playingVideoIndex].CurrentPlayedTime = txblockCurrentTime.Text;// save current time
+                        _mediaFilesInPlaylist[_playingPlaylistIndex].IsPlaying = false; // Xóa highlight của video đang chạy
+                        _mediaFilesInPlaylist[_playingPlaylistIndex].CurrentPlayedTime = txblockCurrentTime.Text;// save current time
                     }
 
-                    _playingVideoIndex = index; // gán lại giá trị đang chạy
+                    _playingPlaylistIndex = index; // gán lại giá trị đang chạy
 
                     if (Is_Audio(_mediaFilesInPlaylist[index].FilePath))
                         GifAudio.Visibility = Visibility.Visible;
                     else
                         GifAudio.Visibility = Visibility.Hidden;
 
-                    playVideoInPlayList(_playingVideoIndex);
+                    playFileInPlayList(_playingPlaylistIndex);
                 }
             }
             else
@@ -829,7 +990,7 @@ namespace MediaPlayer
         private void PlayCurrentFile_Click(object sender, RoutedEventArgs e)
         {
             string tag = (string)((Button)sender).Tag;
-            int index = GetIndexFromName(tag);
+            int index = GetIndexFromName(tag, ListType.PlayList);
             if (index >= 0)
             {
                 PauseAudio.Visibility = Visibility.Hidden;
@@ -839,19 +1000,50 @@ namespace MediaPlayer
                     GifAudio.Visibility = Visibility.Hidden;
 
 
-                if (_playingVideoIndex >= 0)
+                if (_playingPlaylistIndex >= 0)
                 {
-                    _mediaFilesInPlaylist[_playingVideoIndex].IsPlaying = false;
+                    _mediaFilesInPlaylist[_playingPlaylistIndex].IsPlaying = false;
                     if (progressSlider.Value != progressSlider.Maximum)
                     {
-                        _mediaFilesInPlaylist[_playingVideoIndex].CurrentPlayedTime = txblockCurrentTime.Text;
+                        _mediaFilesInPlaylist[_playingPlaylistIndex].CurrentPlayedTime = txblockCurrentTime.Text;
                     }
                 }
 
 
-                playVideoInPlayList(index);
+                playFileInPlayList(index);
 
-                _playingVideoIndex = index;
+                _playingPlaylistIndex = index;
+            }
+        }
+
+        private void PlayRecentFile_Click(object sender, RoutedEventArgs e)
+        {
+            string tag = (string)((Button)sender).Tag;
+            int index = GetIndexFromName(tag, ListType.RecentPlayed);
+            if (index >= 0)
+            {
+                PauseAudio.Visibility = Visibility.Hidden;
+                if (Is_Audio(_recentlyPlayedFiles[index].FilePath))
+                    GifAudio.Visibility = Visibility.Visible;
+                else
+                    GifAudio.Visibility = Visibility.Hidden;
+
+
+                if (_playingRecentPlayedIndex >= 0)
+                {
+                    _recentlyPlayedFiles[_playingRecentPlayedIndex].IsPlaying = false;
+                    if (progressSlider.Value != progressSlider.Maximum)
+                    {
+                        _recentlyPlayedFiles[_playingRecentPlayedIndex].CurrentPlayedTime = txblockCurrentTime.Text;
+                    }
+                }
+
+
+                //playFileInPlayList(index);
+                playFileInRecentPlayed(index);
+
+                _playingPlaylistIndex = -1;
+                _playingRecentPlayedIndex = index;
             }
         }
 
@@ -1087,9 +1279,9 @@ namespace MediaPlayer
 
             if (index >= 0)
             {
-                if (_isPlayed && index == _playingVideoIndex)
+                if (_isPlayed && index == _playingPlaylistIndex)
                 {
-                    if (_playingVideoIndex == _mediaFilesInPlaylist.Count - 1)
+                    if (_playingPlaylistIndex == _mediaFilesInPlaylist.Count - 1)
                     {
                         _timer.Stop();
                         txblockCurrentTime.Text = "00:00";
@@ -1102,26 +1294,92 @@ namespace MediaPlayer
                         GifAudio.Visibility = Visibility.Hidden;
                         PauseAudio.Visibility = Visibility.Hidden;
                         mediaElement.Source = null;
-                        _playingVideoIndex = -1;
+                        _playingPlaylistIndex = -1;
                     }
                     else
                     {
                         // Play next video
                         BtnNext_Click(sender, e);
-                        _playingVideoIndex--;
+                        _playingPlaylistIndex--;
                     }
                 }
                 else
                 {
-                    if (index < _playingVideoIndex)
+                    if (index < _playingPlaylistIndex)
                     {
-                        _playingVideoIndex--;
+                        _playingPlaylistIndex--;
                     }
                 }
                 _mediaFilesInPlaylist.RemoveAt(index);
             }
 
             if (_mediaFilesInPlaylist.Count() == 0)
+            {
+                if (_repeat > 0)
+                {
+                    var bitmapRepeat = new BitmapImage();
+                    bitmapRepeat.BeginInit();
+                    bitmapRepeat.UriSource = new Uri(@"Images/repeat-button.png", UriKind.Relative);
+                    bitmapRepeat.EndInit();
+                    _repeat = 0;
+
+                    RepeatIcon.Source = bitmapRepeat;
+                }
+
+                if (_shuffle)
+                {
+                    var bitmapShuffle = new BitmapImage();
+                    bitmapShuffle.BeginInit();
+                    bitmapShuffle.UriSource = new Uri(@"Images/shuffle-button.png", UriKind.Relative);
+                    bitmapShuffle.EndInit();
+                    _shuffle = !_shuffle;
+
+                    ShuffleIcon.Source = bitmapShuffle;
+                }
+            }
+        }
+
+        private void RemoveFileFromRecentPlayed_Click(object sender, RoutedEventArgs e)
+        {
+            int index = recentFilesView.SelectedIndex;
+
+            if (index >= 0)
+            {
+                if (_isPlayed && index == _playingRecentPlayedIndex)
+                {
+                    if (_playingRecentPlayedIndex == _recentlyPlayedFiles.Count - 1)
+                    {
+                        _timer.Stop();
+                        txblockCurrentTime.Text = "00:00";
+                        txblockTotalTime.Text = "00:00";
+                        txblockVolume.Text = "0%";
+
+                        progressSlider.Value = 0;
+
+                        _isPlayed = false;
+                        GifAudio.Visibility = Visibility.Hidden;
+                        PauseAudio.Visibility = Visibility.Hidden;
+                        mediaElement.Source = null;
+                        _playingRecentPlayedIndex = -1;
+                    }
+                    else
+                    {
+                        // Play next video
+                        BtnNext_Click(sender, e);
+                        _playingRecentPlayedIndex--;
+                    }
+                }
+                else
+                {
+                    if (index < _playingRecentPlayedIndex)
+                    {
+                        _playingRecentPlayedIndex--;
+                    }
+                }
+                _recentlyPlayedFiles.RemoveAt(index);
+            }
+
+            if (_recentlyPlayedFiles.Count() == 0)
             {
                 if (_repeat > 0)
                 {
@@ -1198,11 +1456,12 @@ namespace MediaPlayer
                 Properties.Settings.Default.Width = this.Width;
                 Properties.Settings.Default.Maximized = false;
             }
-            Properties.Settings.Default.PlayingVideoIndex = _playingVideoIndex;
+            Properties.Settings.Default.PlayingVideoIndex = _playingPlaylistIndex;
             Properties.Settings.Default.Save();
 
             //
-            saveMediaFiles();
+            saveMediaFiles(_playListDataFile, ListType.PlayList);
+            saveMediaFiles(_recentPlayedDataFile, ListType.RecentPlayed);
         }
     }
 }

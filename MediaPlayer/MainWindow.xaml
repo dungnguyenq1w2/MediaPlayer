@@ -1,132 +1,217 @@
-﻿<Window x:Class="MediaPlayer.MainWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:MediaPlayer"
-        xmlns:gif="http://wpfanimatedgif.codeplex.com"
-        mc:Ignorable="d"
-        Title="MediaPlayer" Height="450" Width="900" Loaded="Window_Loaded" Closed="Window_Closed" KeyDown="Window_KeyDown">
+﻿<Window
+    x:Class="MediaPlayer.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:gif="http://wpfanimatedgif.codeplex.com"
+    xmlns:local="clr-namespace:MediaPlayer"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Title="MediaPlayer"
+    Width="900"
+    Height="450"
+    Closed="Window_Closed"
+    KeyDown="Window_KeyDown"
+    Loaded="Window_Loaded"
+    mc:Ignorable="d">
 
     <Window.Resources>
-        <ResourceDictionary Source="CustomSliderAndButtonDictionary.xaml"/>
+        <ResourceDictionary Source="CustomSliderAndButtonDictionary.xaml" />
     </Window.Resources>
 
     <DockPanel>
         <StackPanel DockPanel.Dock="Top">
-            <Menu Name="topMenu" Background="#555" Foreground="White" Cursor="Hand" FontSize="15" Height="22">
+            <Menu
+                Name="topMenu"
+                Height="22"
+                Background="#555"
+                Cursor="Hand"
+                FontSize="15"
+                Foreground="White">
                 <MenuItem Header="File">
-                    <MenuItem Header="Open File" Foreground="Black" Click="OpenMediaFile_Click">
+                    <MenuItem
+                        Click="OpenMediaFile_Click"
+                        Foreground="Black"
+                        Header="Open File">
                         <MenuItem.Icon>
-                            <Image Source="/Images/document.png"/>
+                            <Image Source="/Images/document.png" />
                         </MenuItem.Icon>
                     </MenuItem>
-                    <MenuItem Header="View recently played" Foreground="Black" Click="ViewRecentPlayedFiles_Click">
+                    <MenuItem
+                        Click="ViewRecentPlayedFiles_Click"
+                        Foreground="Black"
+                        Header="View recently played">
                         <MenuItem.Icon>
-                            <Image Source="/Images/view-playlist.png"/>
+                            <Image Source="/Images/view-playlist.png" />
                         </MenuItem.Icon>
                     </MenuItem>
                 </MenuItem>
                 <MenuItem Header="Playlist">
-                    <MenuItem Header="View Playlist" Foreground="Black" Click="ViewPlaylist_Click">
+                    <MenuItem
+                        Click="ViewPlaylist_Click"
+                        Foreground="Black"
+                        Header="View Playlist">
                         <MenuItem.Icon>
-                            <Image Source="/Images/view-playlist.png"/>
+                            <Image Source="/Images/view-playlist.png" />
                         </MenuItem.Icon>
                     </MenuItem>
-                    <MenuItem Header="Add files to Playlist" Foreground="Black" Click="AddFilesPlaylist_Click">
+                    <MenuItem
+                        Click="AddFilesPlaylist_Click"
+                        Foreground="Black"
+                        Header="Add files to Playlist">
                         <MenuItem.Icon>
-                            <Image Source="/Images/add-playlist.png"/>
+                            <Image Source="/Images/add-playlist.png" />
                         </MenuItem.Icon>
                     </MenuItem>
-                    <MenuItem Header="Save Playlist" Foreground="Black">
+                    <MenuItem Foreground="Black" Header="Save Playlist">
                         <MenuItem.Icon>
-                            <Image Source="/Images/save-button.png"/>
+                            <Image Source="/Images/save-button.png" />
                         </MenuItem.Icon>
                     </MenuItem>
                 </MenuItem>
             </Menu>
         </StackPanel>
-        
-        <Grid DockPanel.Dock="Bottom" HorizontalAlignment="Stretch" Background="#333" >
+
+        <Grid
+            HorizontalAlignment="Stretch"
+            Background="#333"
+            DockPanel.Dock="Bottom">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="120"/>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="120" />
             </Grid.ColumnDefinitions>
-            <StackPanel Grid.Column="0" Orientation="Horizontal" Background="#333" HorizontalAlignment="Center">
+            <StackPanel
+                Grid.Column="0"
+                HorizontalAlignment="Center"
+                Background="#333"
+                Orientation="Horizontal">
                 <Button Name="BtnPrevious" Click="BtnPrevious_Click">
-                    <Image Source="Images/Previous.png" Height="23"/>
+                    <Image Height="23" Source="Images/Previous.png" />
                     <Button.ToolTip>
-                        <TextBlock Text="Previous"/>
+                        <TextBlock Text="Previous" />
                     </Button.ToolTip>
                 </Button>
-                <Button Padding="5" Focusable="False" Click="BtnPlay_Click">
-                    <Image x:Name="PlayButtonIcon" Source="Images/play-button-arrowhead.png" Height="11"/>
+                <Button
+                    Padding="5"
+                    Click="BtnPlay_Click"
+                    Focusable="False">
+                    <Image
+                        x:Name="PlayButtonIcon"
+                        Height="11"
+                        Source="Images/play-button-arrowhead.png" />
                 </Button>
-                <Button Padding="5" Focusable="False" Click="BtnStop_Click">
-                    <Image Source="Images/stop.png" Height="11"/>
+                <Button
+                    Padding="5"
+                    Click="BtnStop_Click"
+                    Focusable="False">
+                    <Image Height="11" Source="Images/stop.png" />
                     <Button.ToolTip>
-                        <TextBlock Text="Stop"/>
+                        <TextBlock Text="Stop" />
                     </Button.ToolTip>
                 </Button>
                 <Button Name="BtnNext" Click="BtnNext_Click">
-                    <Image Source="Images/Next.png" Height="23"/>
+                    <Image Height="23" Source="Images/Next.png" />
                     <Button.ToolTip>
-                        <TextBlock Text="Next"/>
+                        <TextBlock Text="Next" />
                     </Button.ToolTip>
                 </Button>
             </StackPanel>
 
-            <StackPanel Grid.Column="1" Orientation="Horizontal" Background="#333" HorizontalAlignment="Center">
-                <Menu Background="#333" Foreground="White" Margin="0,5,0,1" Width="25" HorizontalContentAlignment="Center">
-                    <MenuItem ToolTip="Setting speed" HorizontalContentAlignment="Center">
+            <StackPanel
+                Grid.Column="1"
+                HorizontalAlignment="Center"
+                Background="#333"
+                Orientation="Horizontal">
+                <Menu
+                    Width="25"
+                    Margin="0,5,0,1"
+                    HorizontalContentAlignment="Center"
+                    Background="#333"
+                    Foreground="White">
+                    <MenuItem HorizontalContentAlignment="Center" ToolTip="Setting speed">
                         <MenuItem.LayoutTransform>
-                            <RotateTransform Angle="180"/>
+                            <RotateTransform Angle="180" />
                         </MenuItem.LayoutTransform>
-                        <MenuItem.Icon >
-                            <Image Name="SettingIcon" Source="Images/settings.png" Height="30"/>
+                        <MenuItem.Icon>
+                            <Image
+                                Name="SettingIcon"
+                                Height="30"
+                                Source="Images/settings.png" />
                         </MenuItem.Icon>
-                        <MenuItem Header="1.5x" Foreground="Black" Click="SpeedUp_Click">
+                        <MenuItem
+                            Click="SpeedUp_Click"
+                            Foreground="Black"
+                            Header="1.5x">
                             <MenuItem.LayoutTransform>
-                                <RotateTransform Angle="180"/>
+                                <RotateTransform Angle="180" />
                             </MenuItem.LayoutTransform>
                             <MenuItem.Icon>
-                                <Image x:Name="SpeedUpIcon" Source="/Images/circle.png" Visibility="Hidden"/>
+                                <Image
+                                    x:Name="SpeedUpIcon"
+                                    Source="/Images/circle.png"
+                                    Visibility="Hidden" />
                             </MenuItem.Icon>
                         </MenuItem>
-                        <MenuItem Header="Normal speed" Foreground="Black" Click="NormalSpeed_Click">
+                        <MenuItem
+                            Click="NormalSpeed_Click"
+                            Foreground="Black"
+                            Header="Normal speed">
                             <MenuItem.LayoutTransform>
-                                <RotateTransform Angle="180"/>
+                                <RotateTransform Angle="180" />
                             </MenuItem.LayoutTransform>
                             <MenuItem.Icon>
-                                <Image x:Name="NormalSpeedIcon" Source="/Images/circle.png"/>
+                                <Image x:Name="NormalSpeedIcon" Source="/Images/circle.png" />
                             </MenuItem.Icon>
                         </MenuItem>
-                        <MenuItem Header="0.5x" Foreground="Black" Click="SlowDown_Click">
+                        <MenuItem
+                            Click="SlowDown_Click"
+                            Foreground="Black"
+                            Header="0.5x">
                             <MenuItem.LayoutTransform>
-                                <RotateTransform Angle="180"/>
+                                <RotateTransform Angle="180" />
                             </MenuItem.LayoutTransform>
                             <MenuItem.Icon>
-                                <Image x:Name="SlowDownIcon" Source="/Images/circle.png" Visibility="Hidden"/>
+                                <Image
+                                    x:Name="SlowDownIcon"
+                                    Source="/Images/circle.png"
+                                    Visibility="Hidden" />
                             </MenuItem.Icon>
                         </MenuItem>
                     </MenuItem>
                 </Menu>
-                <Button Padding="5" Name="BtnShuffle" Click="BtnShuffle_Click">
-                    <Image x:Name="ShuffleIcon" Source="Images/shuffle-button.png" Height="20"/>
+                <Button
+                    Name="BtnShuffle"
+                    Padding="5"
+                    Click="BtnShuffle_Click">
+                    <Image
+                        x:Name="ShuffleIcon"
+                        Height="20"
+                        Source="Images/shuffle-button.png" />
                     <Button.ToolTip>
-                        <TextBlock Text="Shuffle"/>
+                        <TextBlock Text="Shuffle" />
                     </Button.ToolTip>
                 </Button>
-                <Button Padding="5"  Name="BtnRepeat" Click="BtnRepeat_Click">
-                    <Image x:Name="RepeatIcon" Source="Images/repeat-button.png" Height="25"/>
+                <Button
+                    Name="BtnRepeat"
+                    Padding="5"
+                    Click="BtnRepeat_Click">
+                    <Image
+                        x:Name="RepeatIcon"
+                        Height="25"
+                        Source="Images/repeat-button.png" />
                     <Button.ToolTip>
-                        <TextBlock Text="Repeat"/>
+                        <TextBlock Text="Repeat" />
                     </Button.ToolTip>
                 </Button>
-                <Button Padding="5" Name="BtnFullscreen" Click="BtnFullscreen_Click">
-                    <Image x:Name="FullscreenIcon" Source="Images/fullscreen-out.png" Height="18"/>
+                <Button
+                    Name="BtnFullscreen"
+                    Padding="5"
+                    Click="BtnFullscreen_Click">
+                    <Image
+                        x:Name="FullscreenIcon"
+                        Height="18"
+                        Source="Images/fullscreen-out.png" />
                     <Button.ToolTip>
-                        <TextBlock Text="Fullscreen"/>
+                        <TextBlock Text="Fullscreen" />
                     </Button.ToolTip>
                 </Button>
             </StackPanel>
@@ -137,107 +222,175 @@
                 <ItemsPanelTemplate>
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                     </Grid>
                 </ItemsPanelTemplate>
             </StatusBar.ItemsPanel>
             <WrapPanel>
-                <TextBlock Text="0:0:0" FontSize="16" 
-                       Foreground="#888" x:Name="txblockCurrentTime"/>
+                <TextBlock
+                    x:Name="txblockCurrentTime"
+                    FontSize="16"
+                    Foreground="#888"
+                    Text="0:0:0" />
 
-                <TextBlock Text="/" FontSize="16" 
-                           Foreground="White"/>
+                <TextBlock
+                    FontSize="16"
+                    Foreground="White"
+                    Text="/" />
 
-                <TextBlock Text="0:0:0" FontSize="16" 
-                       Foreground="White" x:Name="txblockTotalTime"/>
+                <TextBlock
+                    x:Name="txblockTotalTime"
+                    FontSize="16"
+                    Foreground="White"
+                    Text="0:0:0" />
             </WrapPanel>
 
             <StatusBarItem Grid.Column="1" HorizontalContentAlignment="Stretch">
-                <Slider x:Name="progressSlider"
-                        IsMoveToPointEnabled="True" 
-                        ValueChanged="progressSlider_ValueChanged" 
-                        Thumb.DragStarted="progressSlider_DragStarted"
-                        Thumb.DragCompleted="progressSlider_DragCompleted"
-                        AutoToolTipPlacement="TopLeft"
-                        MouseMove="progressSlider_MouseMove"
-                        MouseLeave="progressSlider_MouseLeave"
-                        />
+                <Slider
+                    x:Name="progressSlider"
+                    AutoToolTipPlacement="TopLeft"
+                    IsMoveToPointEnabled="True"
+                    MouseLeave="progressSlider_MouseLeave"
+                    MouseMove="progressSlider_MouseMove"
+                    Thumb.DragCompleted="progressSlider_DragCompleted"
+                    Thumb.DragStarted="progressSlider_DragStarted"
+                    ValueChanged="progressSlider_ValueChanged" />
             </StatusBarItem>
-            <Popup Name="Tedavi_Popup" IsOpen="False" Placement="Relative" HorizontalOffset="0" VerticalOffset="0" PlacementTarget="{Binding ElementName=progressSlider}">
-                <Border BorderBrush="Gray" BorderThickness="1" >
-                    <MediaElement Height="90" Width="160" x:Name="mediaElementPreview" LoadedBehavior="Manual" ScrubbingEnabled="True"/>
+            <Popup
+                Name="Tedavi_Popup"
+                HorizontalOffset="0"
+                IsOpen="False"
+                Placement="Relative"
+                PlacementTarget="{Binding ElementName=progressSlider}"
+                VerticalOffset="0">
+                <Border BorderBrush="Gray" BorderThickness="1">
+                    <MediaElement
+                        x:Name="mediaElementPreview"
+                        Width="160"
+                        Height="90"
+                        LoadedBehavior="Manual"
+                        ScrubbingEnabled="True" />
                 </Border>
             </Popup>
             <StatusBarItem Grid.Column="2">
                 <Button x:Name="MuteButton" Click="MuteButton_Click">
-                    <Image x:Name="MuteButtonIcon" Source="Images/volume.png" Height="17" Width="26"/>
+                    <Image
+                        x:Name="MuteButtonIcon"
+                        Width="26"
+                        Height="17"
+                        Source="Images/volume.png" />
                 </Button>
             </StatusBarItem>
 
-            <StatusBarItem Grid.Column="3" HorizontalContentAlignment="Stretch" Width="80">
+            <StatusBarItem
+                Grid.Column="3"
+                Width="80"
+                HorizontalContentAlignment="Stretch">
 
-                <Slider x:Name="volumeSlider"
-                            Maximum="1" IsMoveToPointEnabled="True" ValueChanged="volumeSlider_ValueChanged"/>
+                <Slider
+                    x:Name="volumeSlider"
+                    IsMoveToPointEnabled="True"
+                    Maximum="1"
+                    ValueChanged="volumeSlider_ValueChanged" />
 
             </StatusBarItem>
             <StatusBarItem Grid.Column="4">
                 <WrapPanel>
-                    <TextBlock Text="0%" FontSize="16" 
-                       Foreground="White" x:Name="txblockVolume"/>
+                    <TextBlock
+                        x:Name="txblockVolume"
+                        FontSize="16"
+                        Foreground="White"
+                        Text="0%" />
                 </WrapPanel>
             </StatusBarItem>
         </StatusBar>
 
         <Grid x:Name="mediaGrid" Background="#333">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="385*"/>
-                <ColumnDefinition Width="184*"/>
-                <ColumnDefinition Width="0"/>
+                <ColumnDefinition Width="385*" />
+                <ColumnDefinition Width="184*" />
+                <ColumnDefinition Width="0" />
             </Grid.ColumnDefinitions>
 
-            <MediaElement Grid.Column="0" x:Name="mediaElement" LoadedBehavior="Manual" MediaOpened="player_MediaOpened" MediaEnded="player_MediaEnded" ScrubbingEnabled="True"/>
+            <MediaElement
+                x:Name="mediaElement"
+                Grid.Column="0"
+                LoadedBehavior="Manual"
+                MediaEnded="player_MediaEnded"
+                MediaOpened="player_MediaOpened"
+                ScrubbingEnabled="True" />
 
-            <Image x:Name="GifAudio" gif:ImageBehavior.AnimatedSource="Images/Disk.gif" Visibility="Hidden"/>
-            <Image x:Name="PauseAudio" Source="Images/pauseAudio.png" Visibility="Hidden"/>
-            <GridSplitter Width="2" Background="#444"/>
+            <Image
+                x:Name="GifAudio"
+                gif:ImageBehavior.AnimatedSource="Images/Disk.gif"
+                Visibility="Hidden" />
+            <Image
+                x:Name="PauseAudio"
+                Source="Images/pauseAudio.png"
+                Visibility="Hidden" />
+            <GridSplitter Width="2" Background="#444" />
 
             <DockPanel Grid.Column="1">
-                <TextBox x:Name="keywordTextBox" Text="{Binding Keyword, UpdateSourceTrigger=PropertyChanged}" TextChanged="KeywordTextBox_TextChanged" DockPanel.Dock="Top">
-                </TextBox>
-                <DockPanel DockPanel.Dock="Top" HorizontalAlignment="Stretch">
-                    <Image Source="Images/playlist.png" Height="20" Margin="5"/>
-                    <Label Content="Your Playlist" Foreground="White" FontSize="20"/>
-                    <Button Margin="10, 0, 0, 0" Focusable="False" Foreground="Transparent" Click="AddFilesPlaylist_Click" Style="{StaticResource PreventHover}">
-                        <Image Source="Images/add.png" Height="24"/>
+                <TextBox
+                    x:Name="keywordTextBox"
+                    DockPanel.Dock="Top"
+                    Text="{Binding Keyword, UpdateSourceTrigger=PropertyChanged}"
+                    TextChanged="KeywordTextBox_TextChanged" />
+                <DockPanel HorizontalAlignment="Stretch" DockPanel.Dock="Top">
+                    <Image
+                        Height="20"
+                        Margin="5"
+                        Source="Images/playlist.png" />
+                    <Label
+                        Content="Your Playlist"
+                        FontSize="20"
+                        Foreground="White" />
+                    <Button
+                        Margin="10,0,0,0"
+                        Click="AddFilesPlaylist_Click"
+                        Focusable="False"
+                        Foreground="Transparent"
+                        Style="{StaticResource PreventHover}">
+                        <Image Height="24" Source="Images/add.png" />
                     </Button>
-                    <Button x:Name="BtnClosePlaylist" Click="BtnClosePlaylist_Click" Height="35" Width="22" HorizontalAlignment="Right">
-                        <Image Source="Images/close.png"/>
+                    <Button
+                        x:Name="BtnClosePlaylist"
+                        Width="22"
+                        Height="35"
+                        HorizontalAlignment="Right"
+                        Click="BtnClosePlaylist_Click">
+                        <Image Source="Images/close.png" />
                     </Button>
                 </DockPanel>
-                <ListView Background="Transparent" Name="playListView" BorderThickness="0" AllowDrop="True" Drop="playListView_Drop">
+                <ListView
+                    Name="playListView"
+                    AllowDrop="True"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Drop="playListView_Drop">
                     <ListView.Resources>
                         <ContextMenu x:Key="listViewContextMenu">
-                            <MenuItem Header="Remove" Click="RemoveFileFromPlayList_Click">
+                            <MenuItem Click="RemoveFileFromPlayList_Click" Header="Remove">
                                 <MenuItem.Icon>
-                                    <Image Source="/Images/remove.png"/>
+                                    <Image Source="/Images/remove.png" />
                                 </MenuItem.Icon>
                             </MenuItem>
                         </ContextMenu>
                     </ListView.Resources>
                     <ListView.ItemContainerStyle>
                         <Style TargetType="ListViewItem">
-                            <Setter Property="ContextMenu" Value="{StaticResource listViewContextMenu}"/>
+                            <Setter Property="ContextMenu" Value="{StaticResource listViewContextMenu}" />
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding Path=IsPlaying}" Value="True">
                                     <Setter Property="Background" Value="Red" />
                                 </DataTrigger>
                                 <DataTrigger Binding="{Binding Path=IsPlaying}" Value="false">
-                                    <Setter Property="Background" Value="Transparent"/>
+                                    <Setter Property="Background" Value="Transparent" />
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
@@ -250,11 +403,17 @@
                     <ListView.ItemTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal">
-                                <Button Width="20" Height="20" x:Name="BtnPlayOne" Style="{StaticResource PreventHover}" Click="PlayCurrentFile_Click" Tag="{Binding Name}">
-                                    <Image Source="Images/play-button-arrowhead.png"/>
+                                <Button
+                                    x:Name="BtnPlayOne"
+                                    Width="20"
+                                    Height="20"
+                                    Click="PlayCurrentFile_Click"
+                                    Style="{StaticResource PreventHover}"
+                                    Tag="{Binding Name}">
+                                    <Image Source="Images/play-button-arrowhead.png" />
                                 </Button>
                                 <TextBlock Margin="5">
-                                <Run Text="{Binding Name}" Foreground="White"/>
+                                    <Run Foreground="White" Text="{Binding Name}" />
                                 </TextBlock>
                             </StackPanel>
                         </DataTemplate>
@@ -264,16 +423,55 @@
             </DockPanel>
 
             <DockPanel Grid.Column="2">
-                <TextBox x:Name="searchTextBox" Text="{Binding SearchWord, UpdateSourceTrigger=PropertyChanged}" TextChanged="SearchTextBox_TextChanged" DockPanel.Dock="Top">
-                </TextBox>
-                <DockPanel DockPanel.Dock="Top" HorizontalAlignment="Stretch">
-                    <Image Source="Images/playlist.png" Height="20" Margin="5"/>
-                    <Label Content="Recent played" Foreground="White" FontSize="20"/>
-                    <Button x:Name="BtnCloseRecentFilesList" Click="BtnCloseRecentFilesList_Click" Height="35" Width="22" HorizontalAlignment="Right">
-                        <Image Source="Images/close.png"/>
+                <TextBox
+                    x:Name="searchTextBox"
+                    DockPanel.Dock="Top"
+                    Text="{Binding SearchWord, UpdateSourceTrigger=PropertyChanged}"
+                    TextChanged="SearchTextBox_TextChanged" />
+                <DockPanel HorizontalAlignment="Stretch" DockPanel.Dock="Top">
+                    <Image
+                        Height="20"
+                        Margin="5"
+                        Source="Images/playlist.png" />
+                    <Label
+                        Content="Recent played"
+                        FontSize="20"
+                        Foreground="White" />
+                    <Button
+                        x:Name="BtnCloseRecentFilesList"
+                        Width="22"
+                        Height="35"
+                        HorizontalAlignment="Right"
+                        Click="BtnCloseRecentFilesList_Click">
+                        <Image Source="Images/close.png" />
                     </Button>
                 </DockPanel>
-                <ListView Background="Transparent" Name="recentFilesView" BorderThickness="0">
+                <ListView
+                    Name="recentFilesView"
+                    Background="Transparent"
+                    BorderThickness="0">
+                    <ListView.Resources>
+                        <ContextMenu x:Key="listView2ContextMenu">
+                            <MenuItem Click="RemoveFileFromRecentPlayed_Click" Header="Remove">
+                                <MenuItem.Icon>
+                                    <Image Source="/Images/remove.png" />
+                                </MenuItem.Icon>
+                            </MenuItem>
+                        </ContextMenu>
+                    </ListView.Resources>
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="ListViewItem">
+                            <Setter Property="ContextMenu" Value="{StaticResource listView2ContextMenu}" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Path=IsPlaying}" Value="True">
+                                    <Setter Property="Background" Value="Red" />
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Path=IsPlaying}" Value="false">
+                                    <Setter Property="Background" Value="Transparent" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ListView.ItemContainerStyle>
                     <ListView.ItemsPanel>
                         <ItemsPanelTemplate>
                             <StackPanel />
@@ -282,9 +480,18 @@
                     <ListView.ItemTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal">
-                                <Image Width="10" Height="10" Source="Images/play-button-arrowhead.png" Margin="5"/>
+                                <!--<Image Width="10" Height="10" Source="Images/play-button-arrowhead.png" Margin="5"/>-->
+                                <Button
+                                    x:Name="BtnPlay"
+                                    Width="20"
+                                    Height="20"
+                                    Click="PlayRecentFile_Click"
+                                    Style="{StaticResource PreventHover}"
+                                    Tag="{Binding Name}">
+                                    <Image Source="Images/play-button-arrowhead.png" />
+                                </Button>
                                 <TextBlock Margin="5">
-                                <Run Text="{Binding Name}" Foreground="White"/>
+                                    <Run Foreground="White" Text="{Binding Name}" />
                                 </TextBlock>
                             </StackPanel>
                         </DataTemplate>
