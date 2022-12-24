@@ -77,7 +77,8 @@
             DockPanel.Dock="Bottom">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="120" />
+                <ColumnDefinition Width="110" />
+                <ColumnDefinition Width="180" />
             </Grid.ColumnDefinitions>
             <StackPanel
                 Grid.Column="0"
@@ -100,24 +101,42 @@
                         Source="Images/play-button-arrowhead.png" />
                 </Button>
                 <Button
+                    Name="BtnNext"
                     Padding="5"
-                    Click="BtnStop_Click"
-                    Focusable="False">
+                    Click="BtnNext_Click">
+                    <Image Height="20" Source="Images/Next.png" />
+                    <Button.ToolTip>
+                        <TextBlock Text="Next" />
+                    </Button.ToolTip>
+                </Button>
+                <Button Click="BtnStop_Click" Focusable="False">
                     <Image Height="11" Source="Images/stop.png" />
                     <Button.ToolTip>
                         <TextBlock Text="Stop" />
-                    </Button.ToolTip>
-                </Button>
-                <Button Name="BtnNext" Click="BtnNext_Click">
-                    <Image Height="23" Source="Images/Next.png" />
-                    <Button.ToolTip>
-                        <TextBlock Text="Next" />
                     </Button.ToolTip>
                 </Button>
             </StackPanel>
 
             <StackPanel
                 Grid.Column="1"
+                Background="#333"
+                Orientation="Horizontal">
+                <Button Name="BtnZoomIn" Click="BtnZoomIn_Click">
+                    <Image Height="20" Source="Images/zoom-in.png" />
+                    <Button.ToolTip>
+                        <TextBlock Text="Zoom in" />
+                    </Button.ToolTip>
+                </Button>
+                <Button Name="BtnZoomOut" Click="BtnZoomOut_Click">
+                    <Image Height="20" Source="Images/zoom-out.png" />
+                    <Button.ToolTip>
+                        <TextBlock Text="Zoom in" />
+                    </Button.ToolTip>
+                </Button>
+            </StackPanel>
+
+            <StackPanel
+                Grid.Column="2"
                 HorizontalAlignment="Center"
                 Background="#333"
                 Orientation="Horizontal">
@@ -179,6 +198,18 @@
                     </MenuItem>
                 </Menu>
                 <Button
+                    Name="BtnSnapshot"
+                    Padding="5"
+                    Click="BtnSnapshot_Click">
+                    <Image
+                        x:Name="SnapshotIcon"
+                        Height="20"
+                        Source="Images/camera.png" />
+                    <Button.ToolTip>
+                        <TextBlock Text="Take a snapshot" />
+                    </Button.ToolTip>
+                </Button>
+                <Button
                     Name="BtnShuffle"
                     Padding="5"
                     Click="BtnShuffle_Click">
@@ -196,10 +227,22 @@
                     Click="BtnRepeat_Click">
                     <Image
                         x:Name="RepeatIcon"
-                        Height="25"
+                        Height="20"
                         Source="Images/repeat-button.png" />
                     <Button.ToolTip>
                         <TextBlock Text="Repeat" />
+                    </Button.ToolTip>
+                </Button>
+                <Button
+                    Name="BtnRotateRight"
+                    Padding="5"
+                    Click="BtnRotateRight_Click">
+                    <Image
+                        x:Name="RotateRightIcon"
+                        Height="20"
+                        Source="Images/rotate-right.png" />
+                    <Button.ToolTip>
+                        <TextBlock Text="Rotate right" />
                     </Button.ToolTip>
                 </Button>
                 <Button
@@ -325,6 +368,16 @@
                 MediaOpened="player_MediaOpened"
                 ScrubbingEnabled="True" />
 
+            <!--<Canvas x:Name="mediaParentCanvas" Background="Transparent">
+                <MediaElement
+                    x:Name="mediaElement"
+                    Grid.Column="0"
+                    LoadedBehavior="Manual"
+                    MediaEnded="player_MediaEnded"
+                    MediaOpened="player_MediaOpened"
+                    ScrubbingEnabled="True" />
+            </Canvas>-->
+
             <Image
                 x:Name="GifAudio"
                 gif:ImageBehavior.AnimatedSource="Images/Disk.gif"
@@ -389,7 +442,7 @@
                                 <DataTrigger Binding="{Binding Path=IsPlaying}" Value="True">
                                     <Setter Property="Background" Value="Red" />
                                 </DataTrigger>
-                                <DataTrigger Binding="{Binding Path=IsPlaying}" Value="false">
+                                <DataTrigger Binding="{Binding Path=IsPlaying}" Value="False">
                                     <Setter Property="Background" Value="Transparent" />
                                 </DataTrigger>
                             </Style.Triggers>
@@ -451,7 +504,7 @@
                     Background="Transparent"
                     BorderThickness="0">
                     <ListView.Resources>
-                        <ContextMenu x:Key="listView2ContextMenu">
+                        <ContextMenu x:Key="listViewContextMenu">
                             <MenuItem Click="RemoveFileFromRecentPlayed_Click" Header="Remove">
                                 <MenuItem.Icon>
                                     <Image Source="/Images/remove.png" />
@@ -461,12 +514,12 @@
                     </ListView.Resources>
                     <ListView.ItemContainerStyle>
                         <Style TargetType="ListViewItem">
-                            <Setter Property="ContextMenu" Value="{StaticResource listView2ContextMenu}" />
+                            <Setter Property="ContextMenu" Value="{StaticResource listViewContextMenu}" />
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding Path=IsPlaying}" Value="True">
                                     <Setter Property="Background" Value="Red" />
                                 </DataTrigger>
-                                <DataTrigger Binding="{Binding Path=IsPlaying}" Value="false">
+                                <DataTrigger Binding="{Binding Path=IsPlaying}" Value="False">
                                     <Setter Property="Background" Value="Transparent" />
                                 </DataTrigger>
                             </Style.Triggers>

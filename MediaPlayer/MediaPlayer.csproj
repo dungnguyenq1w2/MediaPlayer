@@ -10,6 +10,7 @@
   <ItemGroup>
     <None Remove="Images\add-playlist.png" />
     <None Remove="Images\add.png" />
+    <None Remove="Images\camera.png" />
     <None Remove="Images\circle.png" />
     <None Remove="Images\close.png" />
     <None Remove="Images\Disk.gif" />
@@ -28,6 +29,7 @@
     <None Remove="Images\repeat-auto.png" />
     <None Remove="Images\repeat-button.png" />
     <None Remove="Images\repeat-one.png" />
+    <None Remove="Images\rotate-right.png" />
     <None Remove="Images\save-button.png" />
     <None Remove="Images\settings-click.png" />
     <None Remove="Images\settings.png" />
@@ -36,6 +38,8 @@
     <None Remove="Images\stop.png" />
     <None Remove="Images\view-playlist.png" />
     <None Remove="Images\volume.png" />
+    <None Remove="Images\zoom-in.png" />
+    <None Remove="Images\zoom-out.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -47,6 +51,7 @@
   <ItemGroup>
     <Resource Include="Images\add-playlist.png" />
     <Resource Include="Images\add.png" />
+    <Resource Include="Images\camera.png" />
     <Resource Include="Images\circle.png" />
     <Resource Include="Images\close.png" />
     <Resource Include="Images\Disk.gif" />
@@ -58,6 +63,7 @@
     <Resource Include="Images\repeat-auto.png" />
     <Resource Include="Images\repeat-button.png" />
     <Resource Include="Images\repeat-one.png" />
+    <Resource Include="Images\rotate-right.png" />
     <Resource Include="Images\save-button.png" />
     <Resource Include="Images\mute-volume-control.png" />
     <Resource Include="Images\Next.png" />
@@ -73,6 +79,8 @@
     <Resource Include="Images\stop.png" />
     <Resource Include="Images\view-playlist.png" />
     <Resource Include="Images\volume.png" />
+    <Resource Include="Images\zoom-in.png" />
+    <Resource Include="Images\zoom-out.png" />
   </ItemGroup>
 
   <ItemGroup>
