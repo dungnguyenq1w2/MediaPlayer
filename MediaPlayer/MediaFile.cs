@@ -10,8 +10,8 @@ namespace MediaPlayer
     public class MediaFile : INotifyPropertyChanged
     {
         private string _name = "";
-        private string _totalTime = "0:0:0";
-        private string _currentPlayedTime = "0:0:0";
+        private string _totalTime = "00:00:00";
+        private string _currentPlayedTime = "00:00:00";
         private string _filePath = "";
         private bool _isPlaying = false;
 

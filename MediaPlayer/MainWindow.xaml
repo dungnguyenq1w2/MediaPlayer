@@ -279,7 +279,7 @@
                     x:Name="txblockCurrentTime"
                     FontSize="16"
                     Foreground="#888"
-                    Text="0:0:0" />
+                    Text="00:00:00" />
 
                 <TextBlock
                     FontSize="16"
@@ -290,7 +290,7 @@
                     x:Name="txblockTotalTime"
                     FontSize="16"
                     Foreground="White"
-                    Text="0:0:0" />
+                    Text="00:00:00" />
             </WrapPanel>
 
             <StatusBarItem Grid.Column="1" HorizontalContentAlignment="Stretch">
@@ -440,7 +440,7 @@
                             <Setter Property="ContextMenu" Value="{StaticResource listViewContextMenu}" />
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding Path=IsPlaying}" Value="True">
-                                    <Setter Property="Background" Value="Red" />
+                                    <Setter Property="Background" Value="Blue" />
                                 </DataTrigger>
                                 <DataTrigger Binding="{Binding Path=IsPlaying}" Value="False">
                                     <Setter Property="Background" Value="Transparent" />
@@ -487,7 +487,7 @@
                         Margin="5"
                         Source="Images/playlist.png" />
                     <Label
-                        Content="Recent played"
+                        Content="Recently played"
                         FontSize="20"
                         Foreground="White" />
                     <Button
@@ -517,7 +517,7 @@
                             <Setter Property="ContextMenu" Value="{StaticResource listViewContextMenu}" />
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding Path=IsPlaying}" Value="True">
-                                    <Setter Property="Background" Value="Red" />
+                                    <Setter Property="Background" Value="Blue" />
                                 </DataTrigger>
                                 <DataTrigger Binding="{Binding Path=IsPlaying}" Value="False">
                                     <Setter Property="Background" Value="Transparent" />
