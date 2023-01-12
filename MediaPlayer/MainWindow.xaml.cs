@@ -187,6 +187,73 @@ namespace MediaPlayer
             //
             saveMediaFiles(_playListDataFile, ListType.PlayList);
         }
+
+        private void BtnSavePlaylist_Click(object sender, RoutedEventArgs e)
+        {
+            Microsoft.Win32.SaveFileDialog saveFileDialog = new Microsoft.Win32.SaveFileDialog();
+            saveFileDialog.Filter = "Project file (*.prj)|*.prj";
+
+            if (saveFileDialog.ShowDialog() == true)
+            {
+                string projectName = saveFileDialog.FileName;
+
+                List<string> lines = new List<string>();
+
+                List<MediaFile> mediaFiles = _mediaFilesInPlaylist
+                    .ToList()
+                    .ConvertAll(
+                        (mediaFile) => new MediaFile()
+                        {
+                            Name = mediaFile.Name,
+                            TotalTime = mediaFile.TotalTime,
+                            CurrentPlayedTime = mediaFile.CurrentPlayedTime,
+                            FilePath = mediaFile.FilePath,
+                        }
+                    );
+
+                try
+                {
+                    string jsonString = JsonConvert.SerializeObject(mediaFiles, Newtonsoft.Json.Formatting.Indented);
+                    System.IO.File.WriteAllText(projectName, jsonString);
+                }
+                catch (Exception)
+                {
+                    return;
+                }
+
+                Title = $"MediaPlayer - {projectName}";
+            }
+        }
+
+        private void BtnOpenPlaylist_Click(object sender, RoutedEventArgs e)
+        {
+            Microsoft.Win32.OpenFileDialog openFileDialog = new Microsoft.Win32.OpenFileDialog();
+
+            if (openFileDialog.ShowDialog() == true)
+            {
+                string projectName = openFileDialog.FileName;
+
+                try
+                {
+                    if (System.IO.File.Exists(projectName) == true)
+                    {
+                        string jsonString = System.IO.File.ReadAllText(projectName);
+                        var mediaFiles = JsonConvert.DeserializeObject<BindingList<MediaFile>>(jsonString) ?? new BindingList<MediaFile>();
+                        _mediaFilesInPlaylist = new BindingList<MediaFile>(mediaFiles);
+                        playListView.ItemsSource = _mediaFilesInPlaylist;
+
+                        BtnStop_Click(sender, e);
+                    }
+                }
+                catch (Exception)
+                {
+                    _mediaFilesInPlaylist = new BindingList<MediaFile>();
+                }
+
+                Title = $"MediaPlayer - {projectName}";
+            }
+        }
+
         private void playListView_Drop(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(System.Windows.DataFormats.FileDrop))
@@ -587,24 +654,6 @@ namespace MediaPlayer
             // Save to JSON file
             try
             {
-                //foreach (var mediaFile in mediaFiles)
-                //{
-                //    string line = string.Join(
-                //        "|",
-                //        new string[]
-                //        {
-                //            mediaFile.Name,
-                //            mediaFile.TotalTime,
-                //            mediaFile.CurrentPlayedTime,
-                //            mediaFile.FilePath,
-                //        }
-                //    );
-
-                //    lines.Add(line);
-                //}
-
-                //System.IO.File.WriteAllLines(filePath, lines);
-
                 string jsonString = JsonConvert.SerializeObject(mediaFiles, Newtonsoft.Json.Formatting.Indented);
                 System.IO.File.WriteAllText(filePath, jsonString);
             }
@@ -1765,5 +1814,7 @@ namespace MediaPlayer
             saveMediaFiles(_playListDataFile, ListType.PlayList);
             saveMediaFiles(_recentPlayedDataFile, ListType.RecentPlayed);
         }
+
+
     }
 }

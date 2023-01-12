@@ -47,6 +47,14 @@
                 </MenuItem>
                 <MenuItem Header="Playlist">
                     <MenuItem
+                        Click="BtnOpenPlaylist_Click"
+                        Foreground="Black"
+                        Header="Open a Playlist">
+                        <MenuItem.Icon>
+                            <Image Source="/Images/document.png" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem
                         Click="ViewPlaylist_Click"
                         Foreground="Black"
                         Header="View Playlist">
@@ -62,7 +70,10 @@
                             <Image Source="/Images/add-playlist.png" />
                         </MenuItem.Icon>
                     </MenuItem>
-                    <MenuItem Foreground="Black" Header="Save Playlist">
+                    <MenuItem
+                        Click="BtnSavePlaylist_Click"
+                        Foreground="Black"
+                        Header="Save Playlist">
                         <MenuItem.Icon>
                             <Image Source="/Images/save-button.png" />
                         </MenuItem.Icon>
