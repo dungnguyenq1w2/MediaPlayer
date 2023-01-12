@@ -17,6 +17,9 @@
     <None Remove="Images\document.png" />
     <None Remove="Images\fullscreen-in.png" />
     <None Remove="Images\fullscreen-out.png" />
+    <None Remove="Images\history-white.png" />
+    <None Remove="Images\history.png" />
+    <None Remove="Images\information.png" />
     <None Remove="Images\mute-volume-control.png" />
     <None Remove="Images\Next.png" />
     <None Remove="Images\pause.png" />
@@ -45,6 +48,7 @@
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
     <PackageReference Include="PropertyChanged.Fody" Version="4.1.0" />
+    <PackageReference Include="TagLibSharp" Version="2.3.0" />
     <PackageReference Include="WpfAnimatedGif" Version="2.0.2" />
   </ItemGroup>
 
@@ -58,8 +62,11 @@
     <Resource Include="Images\document.png" />
     <Resource Include="Images\fullscreen-in.png" />
     <Resource Include="Images\fullscreen-out.png" />
+    <Resource Include="Images\history-white.png" />
+    <Resource Include="Images\information.png" />
     <Resource Include="Images\pauseAudio.png" />
     <Resource Include="Images\playlist.png" />
+    <Resource Include="Images\history.png" />
     <Resource Include="Images\repeat-auto.png" />
     <Resource Include="Images\repeat-button.png" />
     <Resource Include="Images\repeat-one.png" />

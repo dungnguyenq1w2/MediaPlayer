@@ -17,6 +17,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using System.Xml;
 using Newtonsoft.Json;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace MediaPlayer
 {
@@ -97,7 +99,8 @@ namespace MediaPlayer
 
         private void ViewPlaylist_Click(object sender, RoutedEventArgs e)
         {
-            if (mediaGrid.ColumnDefinitions[1].Width == new GridLength(0))
+            //if (mediaGrid.ColumnDefinitions[1].Width == new GridLength(0))
+            if (mediaGrid.ColumnDefinitions[1].Width.Value == 0)
             {
                 mediaGrid.ColumnDefinitions[1].Width = new GridLength(184, GridUnitType.Star);
                 playListView.ItemsSource = _mediaFilesInPlaylist;
@@ -121,8 +124,7 @@ namespace MediaPlayer
 
         private void ViewRecentPlayedFiles_Click(object sender, RoutedEventArgs e)
         {
-
-            if (mediaGrid.ColumnDefinitions[2].Width == new GridLength(0))
+            if (mediaGrid.ColumnDefinitions[2].Width.Value == 0)
             {
                 mediaGrid.ColumnDefinitions[2].Width = new GridLength(184, GridUnitType.Star);
                 recentFilesView.ItemsSource = _recentlyPlayedFiles;
@@ -998,16 +1000,6 @@ namespace MediaPlayer
             saveMediaFiles(_recentPlayedDataFile, ListType.RecentPlayed);
         }
 
-        private void BtnZoomIn_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-        private void BtnZoomOut_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
         private void BtnShuffle_Click(object sender, RoutedEventArgs e)
         {
             if (mediaElement.Source == null || (_playingPlaylistIndex == -1 && _playingRecentPlayedIndex == -1) || (_playingPlaylistIndex != -1 && _mediaFilesInPlaylist.Count == 0) || (_playingRecentPlayedIndex != -1 && _recentlyPlayedFiles.Count == 0))
@@ -1205,6 +1197,48 @@ namespace MediaPlayer
                     MessageBox.Show("We currently DO NOT support 'REPEAT PLAYLIST' MODE when playing files in Recently Played so it has been turned off." +
                         " You can still use 'REPEAT SINGLE FILE' MODE :>");
                 }
+            }
+        }
+
+        private void BtnViewDetail_Click(object sender, RoutedEventArgs e)
+        {
+            string tag = (string)((Button)sender).Tag;
+            int index = GetIndexFromName(tag, ListType.PlayList);
+
+            if (index >= 0)
+            {
+                if (System.IO.File.Exists(_mediaFilesInPlaylist[index].FilePath) == false)
+                {
+                    MessageBox.Show("This file has been moved or deleted", "Item not found", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    _mediaFilesInPlaylist.RemoveAt(index);
+                    return;
+                }
+
+                StringBuilder sb = new StringBuilder();
+
+
+
+                string filePath = _mediaFilesInPlaylist[index].FilePath;
+                var taglibFile = TagLib.File.Create(filePath);
+                var fileInfo = new FileInfo(filePath);
+
+                sb.AppendLine("Filename: " + fileInfo.Name);
+                sb.AppendLine("Location: " + fileInfo.DirectoryName);
+                if (fileInfo.Length / 1024 < 1024)
+                {
+                    sb.AppendLine("Size: " + fileInfo.Length / 1024.0 + " KB");
+                }
+                else
+                {
+                    sb.AppendLine("Size: " + (fileInfo.Length / 1024.0 / 1024).ToString("0.00") + " MB");
+                }
+                sb.AppendLine("Created: " + fileInfo.CreationTimeUtc);
+                sb.AppendLine("Last modified: " + fileInfo.LastWriteTime);
+                sb.AppendLine("Audio Bitrate: " + taglibFile.Properties.AudioBitrate);
+                sb.AppendLine("Duration: " + taglibFile.Properties.Duration);
+                sb.AppendLine("Media type: " + taglibFile.Properties.MediaTypes);
+
+                MessageBox.Show(sb.ToString(), "Information", MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
 

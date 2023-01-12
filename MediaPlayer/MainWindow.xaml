@@ -41,7 +41,7 @@
                         Foreground="Black"
                         Header="View recently played">
                         <MenuItem.Icon>
-                            <Image Source="/Images/view-playlist.png" />
+                            <Image Source="/Images/history-white.png" />
                         </MenuItem.Icon>
                     </MenuItem>
                 </MenuItem>
@@ -77,7 +77,6 @@
             DockPanel.Dock="Bottom">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="110" />
                 <ColumnDefinition Width="180" />
             </Grid.ColumnDefinitions>
             <StackPanel
@@ -113,24 +112,6 @@
                     <Image Height="11" Source="Images/stop.png" />
                     <Button.ToolTip>
                         <TextBlock Text="Stop" />
-                    </Button.ToolTip>
-                </Button>
-            </StackPanel>
-
-            <StackPanel
-                Grid.Column="1"
-                Background="#333"
-                Orientation="Horizontal">
-                <Button Name="BtnZoomIn" Click="BtnZoomIn_Click">
-                    <Image Height="20" Source="Images/zoom-in.png" />
-                    <Button.ToolTip>
-                        <TextBlock Text="Zoom in" />
-                    </Button.ToolTip>
-                </Button>
-                <Button Name="BtnZoomOut" Click="BtnZoomOut_Click">
-                    <Image Height="20" Source="Images/zoom-out.png" />
-                    <Button.ToolTip>
-                        <TextBlock Text="Zoom in" />
                     </Button.ToolTip>
                 </Button>
             </StackPanel>
@@ -386,11 +367,13 @@
                 x:Name="PauseAudio"
                 Source="Images/pauseAudio.png"
                 Visibility="Hidden" />
+
             <GridSplitter Width="2" Background="#444" />
 
             <DockPanel Grid.Column="1">
                 <TextBox
                     x:Name="keywordTextBox"
+                    Height="20"
                     DockPanel.Dock="Top"
                     Text="{Binding Keyword, UpdateSourceTrigger=PropertyChanged}"
                     TextChanged="KeywordTextBox_TextChanged" />
@@ -468,6 +451,16 @@
                                 <TextBlock Margin="5">
                                     <Run Foreground="White" Text="{Binding Name}" />
                                 </TextBlock>
+                                <Button
+                                    x:Name="BtnViewDetail"
+                                    Width="30"
+                                    Height="30"
+                                    HorizontalAlignment="Right"
+                                    Click="BtnViewDetail_Click"
+                                    Style="{StaticResource PreventHover}"
+                                    Tag="{Binding Name}">
+                                    <Image Source="Images/information.png" />
+                                </Button>
                             </StackPanel>
                         </DataTemplate>
 
@@ -478,14 +471,15 @@
             <DockPanel Grid.Column="2">
                 <TextBox
                     x:Name="searchTextBox"
+                    Height="20"
                     DockPanel.Dock="Top"
                     Text="{Binding SearchWord, UpdateSourceTrigger=PropertyChanged}"
                     TextChanged="SearchTextBox_TextChanged" />
                 <DockPanel HorizontalAlignment="Stretch" DockPanel.Dock="Top">
                     <Image
-                        Height="20"
-                        Margin="5"
-                        Source="Images/playlist.png" />
+                        Height="32"
+                        Margin="2"
+                        Source="Images/history.png" />
                     <Label
                         Content="Recently played"
                         FontSize="20"
